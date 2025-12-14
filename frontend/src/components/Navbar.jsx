@@ -11,12 +11,11 @@ const Navbar = () => {
     { name: 'Home', path: '/' },
     { name: 'Informasi', path: '/informasi' },
     { name: 'Konsul Gizi', path: '/konsultasi' },
-    { name: 'MPASI', path: '/mpasi' },
+    { name: 'MPASI & Resep', path: '/mpasi' },
     { name: 'Status Gizi', path: '/status-gizi' },
     { name: 'E-Data', path: '/e-data' },
     { name: 'Agenda', path: '/agenda' },
-    { name: 'Artikel', path: '/artikel' },
-    { name: 'Resep Sehat', path: '/resep' }
+    { name: 'Artikel', path: '/artikel' }
   ];
 
   const isActive = (path) => location.pathname === path;
