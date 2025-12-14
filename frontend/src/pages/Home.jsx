@@ -15,7 +15,7 @@ const Home = () => {
   const fiturUnggulan = [
     { icon: Calculator, title: 'Kalkulator Gizi', desc: 'Cek status gizi anak secara instan', link: '/status-gizi' },
     { icon: FileText, title: 'Artikel Kesehatan', desc: 'Informasi terpercaya seputar gizi', link: '/artikel' },
-    { icon: Utensils, title: 'Resep MPASI', desc: 'Resep bergizi untuk si kecil', link: '/resep' }
+    { icon: Utensils, title: 'Resep MPASI', desc: 'Resep bergizi untuk si kecil', link: '/mpasi' }
   ];
 
   return (
