@@ -1,27 +1,145 @@
-import React from 'react';
-import { Clock, Users, ChefHat, AlertCircle, CheckCircle2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Clock, ChefHat, Utensils, Info, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { panduanMPASI } from '../data/mockData';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { resepMPASI } from '../data/mockData';
 
 const MPASI = () => {
-  const tipsUmum = [
-    'Mulai MPASI saat usia 6 bulan, bukan sebelumnya',
-    'Berikan ASI terlebih dahulu sebelum MPASI',
-    'Perkenalkan satu jenis makanan baru setiap 3-5 hari',
-    'Pantau reaksi alergi setiap makanan baru',
-    'Jangan tambahkan gula atau garam di tahun pertama',
-    'Buat suasana makan menyenangkan dan tanpa paksaan'
-  ];
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
 
-  const makananPantangan = [
-    'Madu (risiko botulisme)',
-    'Susu sapi murni sebelum 1 tahun',
-    'Makanan keras yang berisiko tersedak',
-    'Makanan tinggi sodium/gula',
-    'Seafood mentah',
-    'Putih telur mentah'
-  ];
+  const ResepCard = ({ resep }) => (
+    <Card 
+      className="border-2 hover:border-purple-600 hover:shadow-xl transition-all duration-300 cursor-pointer group"
+      onClick={() => setSelectedRecipe(resep)}
+    >
+      <div className="h-48 overflow-hidden">
+        <img 
+          src={resep.gambar} 
+          alt={resep.nama}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+        />
+      </div>
+      <CardHeader>
+        <CardTitle className="text-lg group-hover:text-purple-600 transition-colors">
+          {resep.nama}
+        </CardTitle>
+        <CardDescription>{resep.deskripsi}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center space-x-2 text-gray-600">
+            <Clock size={16} className="text-purple-600" />
+            <span>{resep.waktu}</span>
+          </div>
+          <Badge className="bg-purple-100 text-purple-800">
+            {resep.porsi}
+          </Badge>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const ResepDetail = ({ resep }) => (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setSelectedRecipe(null)}>
+      <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="sticky top-0 bg-white border-b z-10 p-6 flex items-center justify-between">
+          <h2 className="text-3xl font-bold text-gray-900">{resep.nama}</h2>
+          <button 
+            onClick={() => setSelectedRecipe(null)}
+            className="text-gray-500 hover:text-gray-700 text-3xl font-light"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="p-6">
+          <img 
+            src={resep.gambar} 
+            alt={resep.nama}
+            className="w-full h-80 object-cover rounded-xl mb-6"
+          />
+
+          <div className="grid md:grid-cols-2 gap-4 mb-6">
+            <div className="flex items-center space-x-3 p-4 bg-purple-50 rounded-lg">
+              <Clock className="text-purple-600" size={24} />
+              <div>
+                <div className="text-sm text-gray-600">Waktu Memasak</div>
+                <div className="font-semibold text-gray-900">{resep.waktu}</div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3 p-4 bg-purple-50 rounded-lg">
+              <Utensils className="text-purple-600" size={24} />
+              <div>
+                <div className="text-sm text-gray-600">Porsi</div>
+                <div className="font-semibold text-gray-900">{resep.porsi}</div>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-gray-600 text-lg mb-6 p-4 bg-purple-50 rounded-lg">
+            {resep.deskripsi}
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <ChefHat className="mr-2 text-purple-600" size={24} />
+                Alat yang Dibutuhkan
+              </h3>
+              <ul className="space-y-2">
+                {resep.alat.map((item, index) => (
+                  <li key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <CheckCircle2 className="text-green-600 flex-shrink-0" size={20} />
+                    <span className="text-gray-700">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <Utensils className="mr-2 text-purple-600" size={24} />
+                Bahan-bahan
+              </h3>
+              <ul className="space-y-2">
+                {resep.bahan.map((item, index) => (
+                  <li key={index} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <span className="text-purple-600 font-bold flex-shrink-0">•</span>
+                    <span className="text-gray-700">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Cara Membuat</h3>
+            <ol className="space-y-3">
+              {resep.cara.map((step, index) => (
+                <li key={index} className="flex items-start space-x-4 p-4 bg-gradient-to-r from-purple-50 to-white rounded-lg border-l-4 border-purple-600">
+                  <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">
+                    {index + 1}
+                  </div>
+                  <span className="text-gray-700 pt-1">{step}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-lg">
+            <div className="flex items-start space-x-3">
+              <Info className="text-blue-600 flex-shrink-0 mt-1" size={20} />
+              <div>
+                <h4 className="font-bold text-blue-900 mb-1">Tips:</h4>
+                <p className="text-blue-800">{resep.tips}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50">
@@ -29,166 +147,168 @@ const MPASI = () => {
       <section className="bg-gradient-to-r from-purple-600 to-purple-800 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-5xl font-bold mb-6">Panduan MPASI</h1>
+            <ChefHat size={64} className="mx-auto mb-6" />
+            <h1 className="text-5xl font-bold mb-6">Panduan & Resep MPASI</h1>
             <p className="text-xl text-purple-100 max-w-3xl mx-auto">
-              Makanan Pendamping ASI yang tepat adalah kunci tumbuh kembang optimal si kecil
+              Resep lengkap MPASI sesuai tahapan usia dengan tutorial memasak yang mudah diikuti
             </p>
           </div>
         </div>
       </section>
 
-      {/* Apa itu MPASI */}
-      <section className="py-20">
+      {/* Info MPASI */}
+      <section className="py-12 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <Card className="border-2 border-purple-200">
             <CardHeader>
-              <CardTitle className="text-3xl">Apa itu MPASI?</CardTitle>
+              <CardTitle className="text-2xl">Tentang MPASI</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 text-gray-600 text-lg">
-              <p>
+            <CardContent className="text-gray-600 leading-relaxed">
+              <p className="mb-4">
                 MPASI (Makanan Pendamping ASI) adalah makanan atau minuman yang mengandung nutrisi, diberikan kepada bayi mulai usia 6 bulan sebagai pendamping ASI untuk memenuhi kebutuhan gizi yang tidak bisa dipenuhi dari ASI saja.
               </p>
               <p>
-                MPASI penting karena pada usia 6 bulan, kebutuhan energi dan nutrisi bayi meningkat dan tidak dapat dipenuhi hanya dari ASI. Pemberian MPASI yang tepat akan mendukung pertumbuhan dan perkembangan optimal bayi.
+                Di bawah ini kami sajikan resep MPASI lengkap berdasarkan tahapan usia, dilengkapi dengan alat, bahan, dan tutorial memasak yang mudah diikuti.
               </p>
             </CardContent>
           </Card>
         </div>
       </section>
 
-      {/* Panduan Usia */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Panduan MPASI Berdasarkan Usia</h2>
-            <p className="text-xl text-gray-600">Sesuaikan tekstur dan porsi dengan tahap perkembangan bayi</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {panduanMPASI.map((panduan, index) => (
-              <Card key={index} className="border-2 hover:border-purple-600 hover:shadow-xl transition-all duration-300">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-4">
-                    <Badge className="bg-gradient-to-r from-purple-600 to-purple-800 text-white text-lg px-4 py-2">
-                      {panduan.usia}
-                    </Badge>
-                  </div>
-                  <CardTitle className="text-2xl">Tahap {index + 1}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-sm text-gray-500 mb-1">Tekstur</div>
-                      <div className="font-semibold text-purple-600">{panduan.tekstur}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-500 mb-1">Frekuensi</div>
-                      <div className="font-semibold text-purple-600">{panduan.frekuensi}</div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500 mb-1">Porsi per makan</div>
-                    <div className="font-semibold text-purple-600">{panduan.porsi}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500 mb-2">Contoh Menu</div>
-                    <div className="flex flex-wrap gap-2">
-                      {panduan.contoh.map((menu, idx) => (
-                        <Badge key={idx} variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                          {menu}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Tips & Pantangan */}
+      {/* Resep per Kategori */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Tips */}
-            <Card className="border-2 border-green-200">
-              <CardHeader>
-                <div className="flex items-center space-x-3 mb-2">
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <CheckCircle2 className="text-green-600" size={28} />
-                  </div>
-                  <CardTitle className="text-2xl">Tips Pemberian MPASI</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  {tipsUmum.map((tip, index) => (
-                    <li key={index} className="flex items-start space-x-3">
-                      <CheckCircle2 className="text-green-600 mt-1 flex-shrink-0" size={20} />
-                      <span className="text-gray-700">{tip}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+          <Tabs defaultValue="6-8" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 h-auto mb-12">
+              <TabsTrigger value="6-8" className="text-base py-3">
+                6-8 Bulan
+              </TabsTrigger>
+              <TabsTrigger value="9-11" className="text-base py-3">
+                9-11 Bulan
+              </TabsTrigger>
+              <TabsTrigger value="12-23" className="text-base py-3">
+                12-23 Bulan
+              </TabsTrigger>
+              <TabsTrigger value="snack" className="text-base py-3">
+                Snack Sehat
+              </TabsTrigger>
+            </TabsList>
 
-            {/* Pantangan */}
-            <Card className="border-2 border-red-200">
-              <CardHeader>
-                <div className="flex items-center space-x-3 mb-2">
-                  <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                    <AlertCircle className="text-red-600" size={28} />
-                  </div>
-                  <CardTitle className="text-2xl">Makanan yang Harus Dihindari</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  {makananPantangan.map((pantangan, index) => (
-                    <li key={index} className="flex items-start space-x-3">
-                      <AlertCircle className="text-red-600 mt-1 flex-shrink-0" size={20} />
-                      <span className="text-gray-700">{pantangan}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
+            <TabsContent value="6-8" className="space-y-8">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-gray-900 mb-3">MPASI 6-8 Bulan</h2>
+                <p className="text-lg text-gray-600">Tekstur puree halus, 2-3 kali sehari</p>
+              </div>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {resepMPASI['6-8'].map((resep) => (
+                  <ResepCard key={resep.id} resep={resep} />
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="9-11" className="space-y-8">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-gray-900 mb-3">MPASI 9-11 Bulan</h2>
+                <p className="text-lg text-gray-600">Tekstur mashed/cincang, 3-4 kali sehari</p>
+              </div>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {resepMPASI['9-11'].map((resep) => (
+                  <ResepCard key={resep.id} resep={resep} />
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="12-23" className="space-y-8">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-gray-900 mb-3">MPASI 12-23 Bulan</h2>
+                <p className="text-lg text-gray-600">Makanan keluarga, 3-4 kali sehari + snack</p>
+              </div>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {resepMPASI['12-23'].map((resep) => (
+                  <ResepCard key={resep.id} resep={resep} />
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="snack" className="space-y-8">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-gray-900 mb-3">Snack Sehat</h2>
+                <p className="text-lg text-gray-600">Camilan bergizi untuk anak 9+ bulan</p>
+              </div>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {resepMPASI['snack'].map((resep) => (
+                  <ResepCard key={resep.id} resep={resep} />
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </section>
 
-      {/* Prinsip MPASI */}
-      <section className="py-20 bg-gradient-to-r from-purple-600 to-purple-800 text-white">
+      {/* Tips Umum */}
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Prinsip MPASI yang Baik</h2>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Tips Umum MPASI</h2>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <Clock size={48} className="mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2">Tepat Waktu</h3>
-              <p className="text-purple-100">Dimulai saat bayi berusia 6 bulan</p>
-            </div>
-            <div className="text-center">
-              <ChefHat size={48} className="mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2">Adekuat</h3>
-              <p className="text-purple-100">Mengandung cukup energi, protein, dan mikronutrien</p>
-            </div>
-            <div className="text-center">
-              <Users size={48} className="mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2">Aman & Higienis</h3>
-              <p className="text-purple-100">Disiapkan dan disajikan dengan cara yang aman</p>
-            </div>
-            <div className="text-center">
-              <CheckCircle2 size={48} className="mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2">Responsif</h3>
-              <p className="text-purple-100">Diberikan sesuai sinyal lapar dan kenyang bayi</p>
-            </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="border-2 border-green-200 bg-green-50">
+              <CardHeader>
+                <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center mb-3">
+                  <CheckCircle2 className="text-white" size={24} />
+                </div>
+                <CardTitle className="text-green-900">Prinsip Pemberian</CardTitle>
+              </CardHeader>
+              <CardContent className="text-green-800">
+                <ul className="space-y-2 text-sm">
+                  <li>✓ Mulai MPASI usia 6 bulan</li>
+                  <li>✓ Berikan ASI sebelum MPASI</li>
+                  <li>✓ Tekstur bertahap sesuai usia</li>
+                  <li>✓ Variasi menu bergizi</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-blue-200 bg-blue-50">
+              <CardHeader>
+                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-3">
+                  <ChefHat className="text-white" size={24} />
+                </div>
+                <CardTitle className="text-blue-900">Kebersihan</CardTitle>
+              </CardHeader>
+              <CardContent className="text-blue-800">
+                <ul className="space-y-2 text-sm">
+                  <li>✓ Cuci tangan sebelum memasak</li>
+                  <li>✓ Sterilkan peralatan</li>
+                  <li>✓ Gunakan bahan segar</li>
+                  <li>✓ Sajikan segera/simpan benar</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-orange-200 bg-orange-50">
+              <CardHeader>
+                <div className="w-12 h-12 bg-orange-600 rounded-xl flex items-center justify-center mb-3">
+                  <Info className="text-white" size={24} />
+                </div>
+                <CardTitle className="text-orange-900">Pantangan</CardTitle>
+              </CardHeader>
+              <CardContent className="text-orange-800">
+                <ul className="space-y-2 text-sm">
+                  <li>✗ Madu (sebelum 1 tahun)</li>
+                  <li>✗ Garam & gula berlebih</li>
+                  <li>✗ Makanan keras</li>
+                  <li>✗ Seafood mentah</li>
+                </ul>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
+
+      {/* Modal Detail Resep */}
+      {selectedRecipe && <ResepDetail resep={selectedRecipe} />}
     </div>
   );
 };
