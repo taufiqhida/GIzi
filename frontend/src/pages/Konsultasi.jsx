@@ -1,64 +1,15 @@
-import React, { useState } from 'react';
-import { Phone, Video, Calendar, Clock, CheckCircle, MessageCircle } from 'lucide-react';
+import React from 'react';
+import { Phone, MessageCircle, Clock, Award, CheckCircle } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Textarea } from '../components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { useToast } from '../hooks/use-toast';
+import { Badge } from '../components/ui/badge';
+import { daftarDokter } from '../data/mockData';
 
 const Konsultasi = () => {
-  const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    nama: '',
-    email: '',
-    telepon: '',
-    jenisKonsultasi: '',
-    usiaAnak: '',
-    keluhan: ''
-  });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Mock submission
-    toast({
-      title: "Pendaftaran Berhasil!",
-      description: "Tim kami akan menghubungi Anda segera. Terima kasih!",
-    });
-    setFormData({ nama: '', email: '', telepon: '', jenisKonsultasi: '', usiaAnak: '', keluhan: '' });
+  const handleWhatsApp = (noHP, nama) => {
+    const message = encodeURIComponent(`Halo ${nama}, saya ingin konsultasi gizi. Terima kasih.`);
+    window.open(`https://wa.me/${noHP}?text=${message}`, '_blank');
   };
-
-  const jenisKonsultasi = [
-    {
-      icon: Phone,
-      title: 'Konsultasi Telepon',
-      desc: 'Konsultasi langsung via telepon dengan ahli gizi',
-      durasi: '30 menit',
-      harga: 'Gratis'
-    },
-    {
-      icon: Video,
-      title: 'Video Call',
-      desc: 'Konsultasi tatap muka virtual via Zoom/Google Meet',
-      durasi: '45 menit',
-      harga: 'Gratis'
-    },
-    {
-      icon: MessageCircle,
-      title: 'Chat WhatsApp',
-      desc: 'Konsultasi via chat WhatsApp yang lebih fleksibel',
-      durasi: 'Fleksibel',
-      harga: 'Gratis'
-    }
-  ];
-
-  const prosesKonsultasi = [
-    { step: '1', title: 'Isi Formulir', desc: 'Lengkapi data diri dan keluhan Anda' },
-    { step: '2', title: 'Konfirmasi', desc: 'Tim kami akan menghubungi untuk jadwal' },
-    { step: '3', title: 'Konsultasi', desc: 'Sesi konsultasi dengan ahli gizi' },
-    { step: '4', title: 'Follow Up', desc: 'Monitoring dan evaluasi berkelanjutan' }
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50">
