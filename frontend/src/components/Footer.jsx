@@ -40,7 +40,7 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-4">Layanan</h4>
             <ul className="space-y-2">
               <li><Link to="/artikel" className="text-purple-200 hover:text-white transition-colors">Artikel Kesehatan</Link></li>
-              <li><Link to="/resep" className="text-purple-200 hover:text-white transition-colors">Resep Sehat</Link></li>
+              <li><Link to="/mpasi" className="text-purple-200 hover:text-white transition-colors">MPASI & Resep</Link></li>
               <li><Link to="/agenda" className="text-purple-200 hover:text-white transition-colors">Agenda Kegiatan</Link></li>
               <li><Link to="/e-data" className="text-purple-200 hover:text-white transition-colors">E-Data</Link></li>
             </ul>
