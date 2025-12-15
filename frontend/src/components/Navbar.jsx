@@ -13,6 +13,7 @@ const Navbar = () => {
     { name: 'Konsul Gizi', path: '/konsultasi' },
     { name: 'MPASI & Resep', path: '/mpasi' },
     { name: 'Status Gizi', path: '/status-gizi' },
+    { name: 'Data Balita', path: '/data-balita' },
     { name: 'E-Data', path: '/e-data' },
     { name: 'Agenda', path: '/agenda' },
     { name: 'Artikel', path: '/artikel' }
