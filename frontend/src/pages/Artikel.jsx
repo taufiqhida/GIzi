@@ -127,7 +127,7 @@ const Artikel = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredArtikel.map((artikel) => (
-              <Link key={artikel.id} to={`/artikel/${artikel.id}`}>
+              <Link key={artikel.id} to={`/artikel/${artikel.slug}`}>
                 <Card className="border-2 hover:border-purple-600 hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer h-full">
                   <div className="h-48 overflow-hidden">
                     <img 
