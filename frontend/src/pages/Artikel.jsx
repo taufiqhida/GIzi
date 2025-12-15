@@ -127,34 +127,36 @@ const Artikel = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredArtikel.map((artikel) => (
-              <Card key={artikel.id} className="border-2 hover:border-purple-600 hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer">
-                <div className="h-48 overflow-hidden">
-                  <img 
-                    src={artikel.image} 
-                    alt={artikel.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-                <CardHeader>
-                  <Badge className="bg-purple-100 text-purple-800 w-fit mb-2">{artikel.category}</Badge>
-                  <CardTitle className="text-xl group-hover:text-purple-600 transition-colors line-clamp-2">
-                    {artikel.title}
-                  </CardTitle>
-                  <CardDescription className="line-clamp-3">{artikel.excerpt}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <div className="flex items-center space-x-2">
-                      <User size={14} />
-                      <span className="text-xs">{artikel.author}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Calendar size={14} />
-                      <span className="text-xs">{new Date(artikel.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span>
-                    </div>
+              <Link key={artikel.id} to={`/artikel/${artikel.id}`}>
+                <Card className="border-2 hover:border-purple-600 hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer h-full">
+                  <div className="h-48 overflow-hidden">
+                    <img 
+                      src={artikel.image} 
+                      alt={artikel.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
                   </div>
-                </CardContent>
-              </Card>
+                  <CardHeader>
+                    <Badge className="bg-purple-100 text-purple-800 w-fit mb-2">{artikel.category}</Badge>
+                    <CardTitle className="text-xl group-hover:text-purple-600 transition-colors line-clamp-2">
+                      {artikel.title}
+                    </CardTitle>
+                    <CardDescription className="line-clamp-3">{artikel.excerpt}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <div className="flex items-center space-x-2">
+                        <User size={14} />
+                        <span className="text-xs">{artikel.author}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Calendar size={14} />
+                        <span className="text-xs">{new Date(artikel.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>
