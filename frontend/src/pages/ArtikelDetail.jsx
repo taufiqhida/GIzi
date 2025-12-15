@@ -7,10 +7,10 @@ import { Card, CardContent } from '../components/ui/card';
 import { artikelKesehatan } from '../data/mockData';
 
 const ArtikelDetail = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
   
-  const artikel = artikelKesehatan.find(a => a.id === parseInt(id));
+  const artikel = artikelKesehatan.find(a => a.slug === slug);
 
   if (!artikel) {
     return (
