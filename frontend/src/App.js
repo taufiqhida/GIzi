@@ -30,7 +30,7 @@ function App() {
           <Route path="/e-data" element={<EData />} />
           <Route path="/agenda" element={<Agenda />} />
           <Route path="/artikel" element={<Artikel />} />
-          <Route path="/artikel/:id" element={<ArtikelDetail />} />
+          <Route path="/artikel/:slug" element={<ArtikelDetail />} />
         </Routes>
         <Footer />
         <Toaster />
