@@ -85,7 +85,7 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="border-t border-white/10 mt-8 pt-8 text-center text-sm text-purple-200">
-          <p>&copy; 2024 SiGizi. Platform Konsultasi Gizi Profesional. Dikembangkan dengan ❤️ untuk kesehatan keluarga Indonesia.</p>
+          <p>&copy; 2024 Sobat Giziku. Platform Konsultasi Gizi Profesional. Dikembangkan dengan ❤️ untuk kesehatan keluarga Indonesia.</p>
         </div>
       </div>
     </footer>
