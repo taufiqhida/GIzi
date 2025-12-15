@@ -55,7 +55,7 @@ const ArtikelDetail = () => {
     conclusion: 'Nutrisi yang baik adalah investasi terbaik untuk masa depan anak. Dengan pemahaman yang tepat dan konsistensi dalam menerapkan pola makan sehat, kita dapat memastikan anak tumbuh dengan optimal. Jangan ragu untuk berkonsultasi dengan ahli gizi jika Anda memiliki pertanyaan atau kekhawatiran khusus mengenai nutrisi anak Anda.'
   };
 
-  const relatedArticles = artikelKesehatan.filter(a => a.id !== artikel.id && a.category === artikel.category).slice(0, 2);
+  const relatedArticles = artikelKesehatan.filter(a => a.slug !== artikel.slug && a.category === artikel.category).slice(0, 2);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50">
