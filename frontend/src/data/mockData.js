@@ -1,4 +1,4 @@
-// Mock Data untuk Website SiGizi
+// Mock Data untuk Website Sobat Giziku
 
 export const heroImages = [
   'https://images.unsplash.com/photo-1576089073624-b5751a8f4de9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwyfHxmYW1pbHklMjBudXRyaXRpb258ZW58MHx8fHwxNzY1NzA2MjAxfDA&ixlib=rb-4.1.0&q=85',
