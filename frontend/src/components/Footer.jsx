@@ -11,10 +11,10 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                <span className="text-2xl font-bold">S</span>
+                <span className="text-lg font-bold">SG</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold">SiGizi</h3>
+                <h3 className="text-xl font-bold">Sobat Giziku</h3>
                 <p className="text-sm text-purple-200">Teman Kesehatan Keluarga</p>
               </div>
             </div>
