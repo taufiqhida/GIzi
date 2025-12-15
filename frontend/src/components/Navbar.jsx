@@ -27,10 +27,10 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group">
             <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
-              <span className="text-2xl font-bold text-white">S</span>
+              <span className="text-xl font-bold text-white">SG</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">SiGizi</span>
+              <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">Sobat Giziku</span>
               <span className="text-xs text-gray-500">Teman Kesehatan Keluarga</span>
             </div>
           </Link>
