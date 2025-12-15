@@ -30,6 +30,7 @@ export const layananKami = [
 export const artikelKesehatan = [
   {
     id: 1,
+    slug: '10-makanan-super-untuk-tumbuh-kembang-anak',
     title: '10 Makanan Super untuk Tumbuh Kembang Anak',
     excerpt: 'Temukan makanan bergizi tinggi yang dapat mendukung pertumbuhan optimal anak Anda.',
     image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400',
@@ -39,6 +40,7 @@ export const artikelKesehatan = [
   },
   {
     id: 2,
+    slug: 'panduan-lengkap-mpasi-6-12-bulan',
     title: 'Panduan Lengkap MPASI 6-12 Bulan',
     excerpt: 'Langkah demi langkah memperkenalkan makanan padat pertama untuk bayi Anda.',
     image: 'https://images.unsplash.com/photo-1604480133435-4b0a139e9783?w=400',
@@ -48,6 +50,7 @@ export const artikelKesehatan = [
   },
   {
     id: 3,
+    slug: 'mengatasi-anak-susah-makan-tips-dan-trik',
     title: 'Mengatasi Anak Susah Makan: Tips & Trik',
     excerpt: 'Strategi efektif untuk mengatasi masalah makan pada anak balita.',
     image: 'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=400',
