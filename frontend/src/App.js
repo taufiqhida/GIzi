@@ -14,6 +14,7 @@ import StatusGizi from "./pages/StatusGizi";
 import EData from "./pages/EData";
 import Agenda from "./pages/Agenda";
 import Artikel from "./pages/Artikel";
+import ArtikelDetail from "./pages/ArtikelDetail";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/e-data" element={<EData />} />
           <Route path="/agenda" element={<Agenda />} />
           <Route path="/artikel" element={<Artikel />} />
+          <Route path="/artikel/:id" element={<ArtikelDetail />} />
         </Routes>
         <Footer />
         <Toaster />
