@@ -169,7 +169,7 @@ const ArtikelDetail = () => {
               <h3 className="text-3xl font-bold text-gray-900 mb-8">Artikel Terkait</h3>
               <div className="grid md:grid-cols-2 gap-8">
                 {relatedArticles.map((related) => (
-                  <Link key={related.id} to={`/artikel/${related.id}`}>
+                  <Link key={related.id} to={`/artikel/${related.slug}`}>
                     <Card className="border-2 hover:border-purple-600 hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer h-full">
                       <div className="h-48 overflow-hidden">
                         <img 
