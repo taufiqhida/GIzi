@@ -15,6 +15,7 @@ import EData from "./pages/EData";
 import Agenda from "./pages/Agenda";
 import Artikel from "./pages/Artikel";
 import ArtikelDetail from "./pages/ArtikelDetail";
+import DataBalita from "./pages/DataBalita";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/konsultasi" element={<Konsultasi />} />
           <Route path="/mpasi" element={<MPASI />} />
           <Route path="/status-gizi" element={<StatusGizi />} />
+          <Route path="/data-balita" element={<DataBalita />} />
           <Route path="/e-data" element={<EData />} />
           <Route path="/agenda" element={<Agenda />} />
           <Route path="/artikel" element={<Artikel />} />
