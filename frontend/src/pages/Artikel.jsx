@@ -79,7 +79,7 @@ const Artikel = () => {
           </div>
 
           <Card className="border-2 hover:border-purple-600 transition-all duration-300 overflow-hidden group cursor-pointer">
-            <Link to={`/artikel/${artikelKesehatan[0].id}`}>
+            <Link to={`/artikel/${artikelKesehatan[0].slug}`}>
               <div className="grid md:grid-cols-2">
                 <div className="h-80 overflow-hidden">
                   <img 
