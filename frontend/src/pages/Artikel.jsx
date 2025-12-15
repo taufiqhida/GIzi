@@ -77,39 +77,41 @@ const Artikel = () => {
             <p className="text-gray-600">Artikel paling populer minggu ini</p>
           </div>
 
-          <Card className="border-2 hover:border-purple-600 transition-all duration-300 overflow-hidden group">
-            <div className="grid md:grid-cols-2">
-              <div className="h-80 overflow-hidden">
-                <img 
-                  src={artikelKesehatan[0].image} 
-                  alt={artikelKesehatan[0].title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-              </div>
-              <div className="p-8 flex flex-col justify-center">
-                <Badge className="bg-purple-100 text-purple-800 w-fit mb-4">{artikelKesehatan[0].category}</Badge>
-                <h3 className="text-3xl font-bold text-gray-900 mb-4 group-hover:text-purple-600 transition-colors">
-                  {artikelKesehatan[0].title}
-                </h3>
-                <p className="text-gray-600 text-lg mb-6">{artikelKesehatan[0].excerpt}</p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <div className="flex items-center space-x-2">
-                      <User size={16} />
-                      <span>{artikelKesehatan[0].author}</span>
+          <Card className="border-2 hover:border-purple-600 transition-all duration-300 overflow-hidden group cursor-pointer">
+            <Link to={`/artikel/${artikelKesehatan[0].id}`}>
+              <div className="grid md:grid-cols-2">
+                <div className="h-80 overflow-hidden">
+                  <img 
+                    src={artikelKesehatan[0].image} 
+                    alt={artikelKesehatan[0].title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                </div>
+                <div className="p-8 flex flex-col justify-center">
+                  <Badge className="bg-purple-100 text-purple-800 w-fit mb-4">{artikelKesehatan[0].category}</Badge>
+                  <h3 className="text-3xl font-bold text-gray-900 mb-4 group-hover:text-purple-600 transition-colors">
+                    {artikelKesehatan[0].title}
+                  </h3>
+                  <p className="text-gray-600 text-lg mb-6">{artikelKesehatan[0].excerpt}</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4 text-sm text-gray-500">
+                      <div className="flex items-center space-x-2">
+                        <User size={16} />
+                        <span>{artikelKesehatan[0].author}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Calendar size={16} />
+                        <span>{new Date(artikelKesehatan[0].date).toLocaleDateString('id-ID')}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Calendar size={16} />
-                      <span>{new Date(artikelKesehatan[0].date).toLocaleDateString('id-ID')}</span>
-                    </div>
+                    <Button className="bg-purple-600 hover:bg-purple-700 group-hover:translate-x-2 transition-transform">
+                      Baca Selengkapnya
+                      <ArrowRight className="ml-2" size={16} />
+                    </Button>
                   </div>
-                  <Button className="bg-purple-600 hover:bg-purple-700 group-hover:translate-x-2 transition-transform">
-                    Baca Selengkapnya
-                    <ArrowRight className="ml-2" size={16} />
-                  </Button>
                 </div>
               </div>
-            </div>
+            </Link>
           </Card>
         </div>
       </section>
