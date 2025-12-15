@@ -32,6 +32,7 @@ const Footer = () => {
               <li><Link to="/konsultasi" className="text-purple-200 hover:text-white transition-colors">Konsul Gizi</Link></li>
               <li><Link to="/mpasi" className="text-purple-200 hover:text-white transition-colors">MPASI</Link></li>
               <li><Link to="/status-gizi" className="text-purple-200 hover:text-white transition-colors">Status Gizi</Link></li>
+              <li><Link to="/data-balita" className="text-purple-200 hover:text-white transition-colors">Data Balita</Link></li>
             </ul>
           </div>
 
