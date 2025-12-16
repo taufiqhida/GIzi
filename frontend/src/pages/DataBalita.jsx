@@ -216,32 +216,48 @@ const DataBalita = () => {
                       />
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="jenisKelamin">Jenis Kelamin *</Label>
-                        <select
-                          id="jenisKelamin"
-                          value={formData.jenisKelamin}
-                          onChange={(e) => setFormData({...formData, jenisKelamin: e.target.value})}
-                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                          required
+                    <div className="space-y-2">
+                      <Label>Jenis Kelamin *</Label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div
+                          onClick={() => setFormData({...formData, jenisKelamin: 'laki'})}
+                          className={`cursor-pointer border-2 rounded-xl p-6 text-center transition-all hover:shadow-lg ${
+                            formData.jenisKelamin === 'laki' 
+                              ? 'border-blue-500 bg-blue-50' 
+                              : 'border-gray-200 hover:border-blue-300'
+                          }`}
                         >
-                          <option value="">Pilih Jenis Kelamin</option>
-                          <option value="laki">Laki-laki</option>
-                          <option value="perempuan">Perempuan</option>
-                        </select>
-                      </div>
+                          <div className="text-6xl mb-3">👶</div>
+                          <div className={`font-semibold ${formData.jenisKelamin === 'laki' ? 'text-blue-600' : 'text-gray-700'}`}>
+                            Laki-laki
+                          </div>
+                        </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="tanggalLahir">Tanggal Lahir *</Label>
-                        <Input 
-                          id="tanggalLahir"
-                          type="date"
-                          value={formData.tanggalLahir}
-                          onChange={(e) => setFormData({...formData, tanggalLahir: e.target.value})}
-                          required
-                        />
+                        <div
+                          onClick={() => setFormData({...formData, jenisKelamin: 'perempuan'})}
+                          className={`cursor-pointer border-2 rounded-xl p-6 text-center transition-all hover:shadow-lg ${
+                            formData.jenisKelamin === 'perempuan' 
+                              ? 'border-pink-500 bg-pink-50' 
+                              : 'border-gray-200 hover:border-pink-300'
+                          }`}
+                        >
+                          <div className="text-6xl mb-3">👧</div>
+                          <div className={`font-semibold ${formData.jenisKelamin === 'perempuan' ? 'text-pink-600' : 'text-gray-700'}`}>
+                            Perempuan
+                          </div>
+                        </div>
                       </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="tanggalLahir">Tanggal Lahir *</Label>
+                      <Input 
+                        id="tanggalLahir"
+                        type="date"
+                        value={formData.tanggalLahir}
+                        onChange={(e) => setFormData({...formData, tanggalLahir: e.target.value})}
+                        required
+                      />
                     </div>
 
                     <div className="space-y-2">
