@@ -84,6 +84,7 @@ const DataBalita = () => {
     // Reset form
     setFormData({
       namaBalita: '',
+      jenisKelamin: '',
       tanggalLahir: '',
       nikBalita: '',
       beratBadan: '',
