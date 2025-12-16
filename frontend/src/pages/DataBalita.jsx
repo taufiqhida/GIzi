@@ -206,15 +206,30 @@ const DataBalita = () => {
                       Data Balita
                     </h3>
                     
+                    <div className="space-y-2">
+                      <Label htmlFor="namaBalita">Nama Balita *</Label>
+                      <Input 
+                        id="namaBalita"
+                        value={formData.namaBalita}
+                        onChange={(e) => setFormData({...formData, namaBalita: e.target.value})}
+                        required
+                      />
+                    </div>
+
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="namaBalita">Nama Balita *</Label>
-                        <Input 
-                          id="namaBalita"
-                          value={formData.namaBalita}
-                          onChange={(e) => setFormData({...formData, namaBalita: e.target.value})}
+                        <Label htmlFor="jenisKelamin">Jenis Kelamin *</Label>
+                        <select
+                          id="jenisKelamin"
+                          value={formData.jenisKelamin}
+                          onChange={(e) => setFormData({...formData, jenisKelamin: e.target.value})}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                           required
-                        />
+                        >
+                          <option value="">Pilih Jenis Kelamin</option>
+                          <option value="laki">Laki-laki</option>
+                          <option value="perempuan">Perempuan</option>
+                        </select>
                       </div>
 
                       <div className="space-y-2">
