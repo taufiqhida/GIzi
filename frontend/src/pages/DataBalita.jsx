@@ -159,28 +159,42 @@ const DataBalita = () => {
               ) : (
                 <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {dataBalita.map((data) => (
-                    <Card key={data.id} className="border-2 hover:shadow-xl hover:border-purple-600 transition-all group">
+                    <Card key={data.id} className={`border-2 hover:shadow-xl transition-all group ${
+                      data.jenisKelamin === 'laki' 
+                        ? 'hover:border-blue-500' 
+                        : 'hover:border-pink-500'
+                    }`}>
                       <CardContent className="pt-6 text-center">
-                        <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                          <Baby className="text-purple-600" size={40} />
+                        <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform ${
+                          data.jenisKelamin === 'laki'
+                            ? 'bg-gradient-to-br from-blue-100 to-blue-200'
+                            : 'bg-gradient-to-br from-pink-100 to-pink-200'
+                        }`}>
+                          <div className="text-5xl">
+                            {data.jenisKelamin === 'laki' ? '👶' : '👧'}
+                          </div>
                         </div>
                         
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">{data.namaBalita}</h3>
+                        <h3 className="text-xl font-bold text-gray-900 mb-3">{data.namaBalita}</h3>
                         
                         <div className="mb-4">
-                          <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                          <Badge variant="outline" className={
+                            data.jenisKelamin === 'laki'
+                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                              : 'bg-pink-50 text-pink-700 border-pink-200'
+                          }>
                             {data.jenisKelamin === 'laki' ? 'Laki-laki' : 'Perempuan'}
                           </Badge>
                         </div>
 
-                        <div className="flex justify-center mb-3">
-                          <Badge className={`${getStatusColor(data.statusKMS.color)} border-2 text-base px-4 py-2`}>
+                        <div className="space-y-2">
+                          <Badge className={`${getStatusColor(data.statusKMS.color)} border-2 text-base px-4 py-2 w-full`}>
                             {data.statusKMS.warna}
                           </Badge>
-                        </div>
 
-                        <div className="text-sm text-gray-600">
-                          Status: <span className="font-semibold">{data.statusKMS.status}</span>
+                          <div className="text-sm text-gray-600 font-medium">
+                            {data.statusKMS.status}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
