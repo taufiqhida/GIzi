@@ -15,6 +15,7 @@ const DataBalita = () => {
   
   const [formData, setFormData] = useState({
     namaBalita: '',
+    jenisKelamin: '',
     tanggalLahir: '',
     nikBalita: '',
     beratBadan: '',
