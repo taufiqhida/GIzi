@@ -157,60 +157,30 @@ const DataBalita = () => {
                   </CardContent>
                 </Card>
               ) : (
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {dataBalita.map((data) => (
-                    <Card key={data.id} className="border-2 hover:shadow-xl transition-all">
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <CardTitle className="text-2xl text-purple-600">{data.namaBalita}</CardTitle>
-                            <CardDescription>NIK: {data.nikBalita}</CardDescription>
-                          </div>
-                          <Badge className={`${getStatusColor(data.statusKMS.color)} border-2`}>
+                    <Card key={data.id} className="border-2 hover:shadow-xl hover:border-purple-600 transition-all group">
+                      <CardContent className="pt-6 text-center">
+                        <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                          <Baby className="text-purple-600" size={40} />
+                        </div>
+                        
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">{data.namaBalita}</h3>
+                        
+                        <div className="mb-4">
+                          <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                            {data.jenisKelamin === 'laki' ? 'Laki-laki' : 'Perempuan'}
+                          </Badge>
+                        </div>
+
+                        <div className="flex justify-center mb-3">
+                          <Badge className={`${getStatusColor(data.statusKMS.color)} border-2 text-base px-4 py-2`}>
                             {data.statusKMS.warna}
                           </Badge>
                         </div>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <div className="text-sm text-gray-500">Usia</div>
-                            <div className="font-semibold">{data.usia} bulan</div>
-                          </div>
-                          <div>
-                            <div className="text-sm text-gray-500">Anak Ke</div>
-                            <div className="font-semibold">{data.anakKe}</div>
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <div className="text-sm text-gray-500">Berat Badan</div>
-                            <div className="font-semibold">{data.beratBadan} kg</div>
-                          </div>
-                          <div>
-                            <div className="text-sm text-gray-500">Tinggi Badan</div>
-                            <div className="font-semibold">{data.tinggiBadan} cm</div>
-                          </div>
-                        </div>
 
-                        <div className="pt-3 border-t">
-                          <div className="text-sm text-gray-500 mb-1">Orang Tua</div>
-                          <div className="font-semibold">{data.namaOrangTua}</div>
-                        </div>
-
-                        <div className="pt-3 border-t">
-                          <div className="text-sm text-gray-500 mb-1">Alamat</div>
-                          <div className="text-sm">{data.kelurahan}, RT {data.rt}/RW {data.rw}</div>
-                        </div>
-
-                        <div className="pt-3 border-t">
-                          <div className="text-sm text-gray-500 mb-1">Data Lahir</div>
-                          <div className="text-sm">BB: {data.beratBadanLahir} kg | PB: {data.panjangBadanLahir} cm</div>
-                        </div>
-
-                        <div className="pt-3 border-t text-xs text-gray-500">
-                          Terdaftar: {data.tanggalPendaftaran}
+                        <div className="text-sm text-gray-600">
+                          Status: <span className="font-semibold">{data.statusKMS.status}</span>
                         </div>
                       </CardContent>
                     </Card>
