@@ -76,9 +76,73 @@ const DataBalita = () => {
     // Simpan data (mock - di localStorage untuk demo)
     setDataBalita([...dataBalita, newData]);
     
+    // Custom toast dengan styling sesuai status
+    const getToastStyle = () => {
+      if (statusKMS.color === 'green') {
+        return {
+          className: 'bg-green-50 border-2 border-green-500',
+          title: '✅ Data Berhasil Disimpan!',
+          description: (
+            <div className="space-y-2">
+              <div className="text-lg font-bold text-green-800">
+                {formData.namaBalita}
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <span className="font-semibold text-green-700">Status: {statusKMS.warna}</span>
+              </div>
+              <div className="text-sm text-green-600">
+                {statusKMS.status} - Pertahankan pola makan sehat!
+              </div>
+            </div>
+          )
+        };
+      } else if (statusKMS.color === 'yellow') {
+        return {
+          className: 'bg-yellow-50 border-2 border-yellow-500',
+          title: '⚠️ Data Berhasil Disimpan!',
+          description: (
+            <div className="space-y-2">
+              <div className="text-lg font-bold text-yellow-800">
+                {formData.namaBalita}
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                <span className="font-semibold text-yellow-700">Status: {statusKMS.warna}</span>
+              </div>
+              <div className="text-sm text-yellow-600">
+                {statusKMS.status} - Perlu perhatian khusus pada nutrisi
+              </div>
+            </div>
+          )
+        };
+      } else {
+        return {
+          className: 'bg-red-50 border-2 border-red-500',
+          title: '🚨 Data Berhasil Disimpan!',
+          description: (
+            <div className="space-y-2">
+              <div className="text-lg font-bold text-red-800">
+                {formData.namaBalita}
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                <span className="font-semibold text-red-700">Status: {statusKMS.warna}</span>
+              </div>
+              <div className="text-sm text-red-600">
+                {statusKMS.status} - Segera konsultasi dengan ahli gizi!
+              </div>
+            </div>
+          )
+        };
+      }
+    };
+    
+    const toastStyle = getToastStyle();
     toast({
-      title: "Data Berhasil Disimpan!",
-      description: `Data ${formData.namaBalita} telah tersimpan dengan status KMS: ${statusKMS.warna}`,
+      title: toastStyle.title,
+      description: toastStyle.description,
+      className: toastStyle.className,
     });
     
     // Reset form
