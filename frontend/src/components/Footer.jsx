@@ -61,11 +61,11 @@ const Footer = () => {
               </li>
               <li className="flex items-start space-x-3">
                 <MapPin size={18} className="mt-1 text-purple-300" />
-                <span className="text-sm text-purple-200">Puskesmas Kecamatan, Jakarta Timur</span>
+                <span className="text-sm text-purple-200">Puskesmas Bugangan, Semarang</span>
               </li>
               <li className="flex items-start space-x-3">
                 <Clock size={18} className="mt-1 text-purple-300" />
-                <span className="text-sm text-purple-200">Senin - Jumat: 08:00 - 14:00</span>
+                <span className="text-sm text-purple-200">Senin - Kamis: 07:00 - 14:00</span>
               </li>
             </ul>
 
