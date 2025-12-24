@@ -28,7 +28,9 @@ const Navbar = () => {
             </div>
             <div className="flex flex-col">
               <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">Sobat Giziku</span>
-              <span className="text-xs text-gray-500">Teman Kesehatan Keluarga</span>
+              <span className="text-xs text-gray-500 leading-tight max-w-[300px]">
+                <span className="font-bold text-purple-600">S</span>osialisasi & <span className="font-bold text-purple-600">O</span>bservasi Tumbuh Kembang <span className="font-bold text-purple-600">B</span>erdayakan Keluarg<span className="font-bold text-purple-600">a</span> & <span className="font-bold text-purple-600">T</span>eknologi Tepat Guna sebagai <span className="font-bold text-purple-600">G</span>erakan <span className="font-bold text-purple-600">I</span>ntervensi Gi<span className="font-bold text-purple-600">zi</span> Terpad<span className="font-bold text-purple-600">u</span>
+              </span>
             </div>
           </Link>
 
