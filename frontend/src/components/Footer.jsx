@@ -15,7 +15,9 @@ const Footer = () => {
               </div>
               <div>
                 <h3 className="text-xl font-bold">Sobat Giziku</h3>
-                <p className="text-sm text-purple-200">Teman Kesehatan Keluarga</p>
+                <p className="text-sm text-purple-200 leading-relaxed max-w-md">
+                  <span className="font-bold">S</span>osialisasi & <span className="font-bold">O</span>bservasi Tumbuh Kembang <span className="font-bold">B</span>erdayakan Keluarg<span className="font-bold">a</span> & <span className="font-bold">T</span>eknologi Tepat Guna sebagai <span className="font-bold">G</span>erakan <span className="font-bold">I</span>ntervensi Gi<span className="font-bold">zi</span> Terpad<span className="font-bold">u</span>
+                </p>
               </div>
             </div>
             <p className="text-sm text-purple-200">
