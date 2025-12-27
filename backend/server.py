@@ -193,6 +193,28 @@ async def delete_artikel(artikel_id: str, current_user: UserResponse = Depends(g
     
     return {"message": "Artikel deleted"}
 
+@admin_router.put("/artikel/{artikel_id}")
+async def update_artikel(artikel_id: str, artikel: ArtikelCreate, current_user: UserResponse = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    slug = artikel.title.lower().replace(' ', '-').replace(':', '').replace(',', '')
+    update_data = {
+        **artikel.dict(),
+        "slug": slug
+    }
+    
+    result = await db.artikel.update_one(
+        {"id": artikel_id},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Artikel not found")
+    
+    updated = await db.artikel.find_one({"id": artikel_id}, {"_id": 0})
+    return updated
+
 @admin_router.post("/resep")
 async def create_resep(resep: ResepCreate, current_user: UserResponse = Depends(get_current_user)):
     if current_user.role != "admin":
