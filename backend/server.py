@@ -293,7 +293,7 @@ async def get_konsultasi_list(status: Optional[str] = None, current_user: UserRe
     if status:
         query["status"] = status
     
-    konsultasi = await db.konsultasi.find(query).to_list(1000)
+    konsultasi = await db.konsultasi.find(query, {"_id": 0}).to_list(1000)
     return konsultasi
 
 @dokter_router.put("/konsultasi/{konsultasi_id}/accept")
