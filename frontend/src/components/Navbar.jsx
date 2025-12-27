@@ -284,23 +284,47 @@ const Navbar = () => {
               Informasi
             </Link>
 
-            <Link
-              to="/e-data"
-              onClick={() => setIsOpen(false)}
-              className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                isActive('/e-data')
-                  ? 'bg-purple-600 text-white'
-                  : 'text-gray-700 hover:bg-purple-50 hover:text-purple-600'
-              }`}
-            >
-              E-Data
-            </Link>
-
-            <Link to="/konsultasi" onClick={() => setIsOpen(false)}>
-              <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 mt-4">
-                Konsultasi Sekarang
+            <Link to="/e-data" onClick={() => setIsOpen(false)}>
+              <Button className={`w-full justify-start ${isActive('/e-data') ? 'bg-purple-600 text-white' : 'bg-transparent text-gray-700 hover:bg-purple-50 hover:text-purple-600'}`}>
+                E-Data
               </Button>
             </Link>
+
+            {/* Auth buttons for mobile */}
+            <div className="pt-4 border-t mt-4 space-y-2">
+              {user ? (
+                <>
+                  <Link to="/dashboard" onClick={() => setIsOpen(false)}>
+                    <Button className="w-full bg-purple-100 text-purple-700 hover:bg-purple-200">
+                      <User size={18} className="mr-2" />
+                      Dashboard ({user.nama})
+                    </Button>
+                  </Link>
+                  <Button 
+                    onClick={() => { handleLogout(); setIsOpen(false); }}
+                    variant="outline"
+                    className="w-full border-red-300 text-red-600 hover:bg-red-50"
+                  >
+                    <LogOut size={18} className="mr-2" />
+                    Keluar
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" onClick={() => setIsOpen(false)}>
+                    <Button variant="outline" className="w-full border-purple-600 text-purple-600">
+                      <LogIn size={18} className="mr-2" />
+                      Masuk
+                    </Button>
+                  </Link>
+                  <Link to="/konsultasi" onClick={() => setIsOpen(false)}>
+                    <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900">
+                      Konsultasi Sekarang
+                    </Button>
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}
