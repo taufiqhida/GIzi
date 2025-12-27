@@ -1,16 +1,64 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Calendar, User, ArrowLeft, Tag, Clock } from 'lucide-react';
+import { Calendar, User, ArrowLeft, Tag, Clock, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Card, CardContent } from '../components/ui/card';
-import { artikelKesehatan } from '../data/mockData';
+import { publicAPI } from '../api';
+import { artikelKesehatan as mockArtikel } from '../data/mockData';
 
 const ArtikelDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  
-  const artikel = artikelKesehatan.find(a => a.slug === slug);
+  const [artikel, setArtikel] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [relatedArtikel, setRelatedArtikel] = useState([]);
+
+  useEffect(() => {
+    loadArtikel();
+  }, [slug]);
+
+  const loadArtikel = async () => {
+    setLoading(true);
+    try {
+      // Try to fetch from API first
+      const res = await publicAPI.getArtikelBySlug(slug);
+      if (res.data) {
+        setArtikel({
+          ...res.data,
+          author: res.data.author_name || 'Admin',
+          date: res.data.created_at
+        });
+      }
+    } catch (error) {
+      // Fallback to mock data
+      const mockData = mockArtikel.find(a => a.slug === slug);
+      setArtikel(mockData);
+    } finally {
+      setLoading(false);
+    }
+
+    // Load related articles
+    try {
+      const allRes = await publicAPI.getArtikel();
+      const related = allRes.data.filter(a => a.slug !== slug).slice(0, 3);
+      if (related.length > 0) {
+        setRelatedArtikel(related);
+      } else {
+        setRelatedArtikel(mockArtikel.filter(a => a.slug !== slug).slice(0, 3));
+      }
+    } catch {
+      setRelatedArtikel(mockArtikel.filter(a => a.slug !== slug).slice(0, 3));
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin text-purple-600" size={48} />
+      </div>
+    );
+  }
 
   if (!artikel) {
     return (
@@ -27,186 +75,172 @@ const ArtikelDetail = () => {
     );
   }
 
-  // Mock full article content
-  const fullContent = {
-    introduction: `${artikel.excerpt} Dalam artikel ini, kita akan membahas secara mendalam tentang topik penting ini yang sangat berkaitan dengan kesehatan dan nutrisi anak-anak kita.`,
-    sections: [
-      {
-        title: 'Mengapa Ini Penting?',
-        content: 'Nutrisi yang tepat di masa pertumbuhan sangat krusial untuk perkembangan fisik dan kognitif anak. Penelitian menunjukkan bahwa 1000 hari pertama kehidupan (sejak konsepsi hingga usia 2 tahun) adalah periode emas yang menentukan kualitas kesehatan anak di masa depan. Kekurangan nutrisi di periode ini dapat berdampak jangka panjang yang sulit diperbaiki.'
-      },
-      {
-        title: 'Tips Praktis untuk Orang Tua',
-        content: 'Berikut adalah beberapa tips yang dapat diterapkan sehari-hari:\n\n1. **Variasi Makanan**: Berikan beragam jenis makanan dari berbagai kelompok nutrisi. Jangan hanya fokus pada satu jenis makanan saja.\n\n2. **Porsi yang Tepat**: Sesuaikan porsi dengan usia dan aktivitas anak. Jangan memaksakan anak untuk menghabiskan makanan jika sudah kenyang.\n\n3. **Jadwal Makan Teratur**: Buat rutinitas makan yang konsisten. Ini membantu mengatur metabolisme dan nafsu makan anak.\n\n4. **Suasana Menyenangkan**: Ciptakan suasana makan yang positif tanpa tekanan atau distraksi gadget.'
-      },
-      {
-        title: 'Nutrisi yang Dibutuhkan',
-        content: 'Anak-anak memerlukan berbagai nutrisi penting untuk tumbuh kembang optimal:\n\n**Protein**: Penting untuk pertumbuhan dan perbaikan jaringan. Sumber: daging, ikan, telur, tahu, tempe.\n\n**Karbohidrat**: Sumber energi utama. Pilih karbohidrat kompleks seperti nasi merah, roti gandum, oatmeal.\n\n**Lemak Sehat**: Penting untuk perkembangan otak. Sumber: alpukat, minyak zaitun, ikan salmon.\n\n**Vitamin & Mineral**: Untuk sistem imun dan berbagai fungsi tubuh. Dapatkan dari buah dan sayur berwarna-warni.\n\n**Kalsium & Vitamin D**: Untuk pertumbuhan tulang yang kuat. Sumber: susu, keju, yogurt, paparan sinar matahari pagi.'
-      },
-      {
-        title: 'Kesalahan yang Sering Dilakukan',
-        content: 'Beberapa kesalahan umum yang perlu dihindari:\n\n❌ **Memaksakan anak makan**: Ini dapat menyebabkan trauma dan mengganggu nafsu makan alami anak.\n\n❌ **Terlalu banyak gula**: Makanan dan minuman manis berlebihan dapat menyebabkan obesitas dan masalah gigi.\n\n❌ **Mengabaikan sarapan**: Sarapan penting untuk energi dan konsentrasi anak di sekolah.\n\n❌ **Memberikan junk food terlalu sering**: Makanan cepat saji rendah nutrisi dan tinggi kalori kosong.'
-      },
-      {
-        title: 'Kapan Harus Konsultasi ke Ahli?',
-        content: 'Segera konsultasi dengan ahli gizi atau dokter anak jika:\n\n• Anak tidak menunjukkan pertambahan berat atau tinggi badan yang signifikan\n• Menolak makan dalam waktu lama\n• Menunjukkan tanda-tanda alergi makanan\n• Memiliki masalah kesehatan khusus seperti diabetes atau alergi\n• Anda memerlukan panduan diet khusus untuk kondisi tertentu\n\nKonsultasi dini dapat mencegah masalah yang lebih serius di kemudian hari.'
-      }
-    ],
-    conclusion: 'Nutrisi yang baik adalah investasi terbaik untuk masa depan anak. Dengan pemahaman yang tepat dan konsistensi dalam menerapkan pola makan sehat, kita dapat memastikan anak tumbuh dengan optimal. Jangan ragu untuk berkonsultasi dengan ahli gizi jika Anda memiliki pertanyaan atau kekhawatiran khusus mengenai nutrisi anak Anda.'
-  };
-
-  const relatedArticles = artikelKesehatan.filter(a => a.slug !== artikel.slug && a.category === artikel.category).slice(0, 2);
+  // For API articles, use the content field directly
+  // For mock articles, generate sections
+  const isApiArtikel = artikel.content && !artikel.sections;
+  
+  const mockSections = [
+    {
+      title: 'Mengapa Ini Penting?',
+      content: 'Nutrisi yang tepat di masa pertumbuhan sangat krusial untuk perkembangan fisik dan kognitif anak. Penelitian menunjukkan bahwa 1000 hari pertama kehidupan (sejak konsepsi hingga usia 2 tahun) adalah periode emas yang menentukan kualitas kesehatan anak di masa depan.'
+    },
+    {
+      title: 'Tips Praktis untuk Orang Tua',
+      content: '1. **Variasi Makanan**: Berikan beragam jenis makanan dari berbagai kelompok nutrisi.\n\n2. **Porsi yang Tepat**: Sesuaikan porsi dengan usia dan aktivitas anak.\n\n3. **Jadwal Makan Teratur**: Buat rutinitas makan yang konsisten.\n\n4. **Suasana Menyenangkan**: Ciptakan suasana makan yang positif.'
+    }
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50">
-      {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Button 
-            variant="ghost" 
+      {/* Hero */}
+      <section className="relative py-20 bg-gradient-to-r from-purple-600 to-purple-800 text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Button
+            variant="ghost"
+            className="text-white hover:bg-white/20 mb-8"
             onClick={() => navigate(-1)}
-            className="hover:bg-purple-50"
           >
             <ArrowLeft className="mr-2" size={20} />
             Kembali
           </Button>
-        </div>
-      </div>
 
-      {/* Article Content */}
-      <article className="py-12">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Category Badge */}
-          <Badge className="bg-purple-100 text-purple-800 mb-6">
-            {artikel.category}
-          </Badge>
-
-          {/* Title */}
-          <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
-            {artikel.title}
-          </h1>
-
-          {/* Meta Info */}
-          <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-8 pb-8 border-b">
+          <Badge className="bg-white/20 text-white mb-4">{artikel.category}</Badge>
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">{artikel.title}</h1>
+          
+          <div className="flex flex-wrap items-center gap-6 text-purple-100">
             <div className="flex items-center space-x-2">
-              <User size={18} className="text-purple-600" />
-              <span>{artikel.author}</span>
+              <User size={20} />
+              <span>{artikel.author || artikel.author_name || 'Admin'}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <Calendar size={18} className="text-purple-600" />
-              <span>{new Date(artikel.date).toLocaleDateString('id-ID', { 
+              <Calendar size={20} />
+              <span>{new Date(artikel.date || artikel.created_at).toLocaleDateString('id-ID', { 
                 day: 'numeric', 
                 month: 'long', 
                 year: 'numeric' 
               })}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <Clock size={18} className="text-purple-600" />
-              <span>8 menit baca</span>
+              <Clock size={20} />
+              <span>5 menit baca</span>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Featured Image */}
-          <div className="mb-12 rounded-2xl overflow-hidden shadow-2xl">
-            <img 
-              src={artikel.image} 
-              alt={artikel.title}
-              className="w-full h-96 object-cover"
-            />
+      {/* Featured Image */}
+      {artikel.image && (
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10">
+          <img 
+            src={artikel.image} 
+            alt={artikel.title}
+            className="w-full h-[400px] object-cover rounded-2xl shadow-2xl"
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
+        </div>
+      )}
+
+      {/* Content */}
+      <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        {/* Introduction */}
+        <div className="prose prose-lg max-w-none mb-12">
+          <p className="text-xl text-gray-700 leading-relaxed">
+            {artikel.excerpt}
+          </p>
+        </div>
+
+        {/* Main Content */}
+        {isApiArtikel ? (
+          // API Article - show content directly
+          <div className="prose prose-lg max-w-none">
+            <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+              {artikel.content}
+            </div>
           </div>
-
-          {/* Introduction */}
-          <div className="prose prose-lg max-w-none mb-8">
-            <p className="text-xl text-gray-700 leading-relaxed">
-              {fullContent.introduction}
-            </p>
-          </div>
-
-          {/* Article Sections */}
+        ) : (
+          // Mock Article - show sections
           <div className="space-y-12">
-            {fullContent.sections.map((section, index) => (
-              <section key={index} className="scroll-mt-20">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  {section.title}
-                </h2>
-                <div className="prose prose-lg max-w-none">
-                  {section.content.split('\n\n').map((paragraph, pIndex) => (
-                    <p key={pIndex} className="text-gray-700 leading-relaxed mb-4 whitespace-pre-line">
-                      {paragraph}
-                    </p>
-                  ))}
+            {mockSections.map((section, index) => (
+              <div key={index}>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">{section.title}</h2>
+                <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {section.content}
                 </div>
-              </section>
+              </div>
             ))}
           </div>
+        )}
 
-          {/* Conclusion */}
-          <div className="mt-12 p-8 bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl border-l-4 border-purple-600">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Kesimpulan</h3>
-            <p className="text-gray-700 text-lg leading-relaxed">
-              {fullContent.conclusion}
-            </p>
+        {/* Tags */}
+        <div className="mt-12 pt-8 border-t">
+          <div className="flex items-center space-x-4">
+            <Tag className="text-gray-400" size={20} />
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="outline" className="text-purple-600 border-purple-600">
+                {artikel.category}
+              </Badge>
+              <Badge variant="outline" className="text-gray-600">
+                Kesehatan Anak
+              </Badge>
+              <Badge variant="outline" className="text-gray-600">
+                Nutrisi
+              </Badge>
+            </div>
           </div>
+        </div>
 
-          {/* CTA Section */}
-          <Card className="mt-12 bg-gradient-to-r from-purple-600 to-purple-800 text-white border-0">
-            <CardContent className="p-8 text-center">
-              <h3 className="text-2xl font-bold mb-4">Butuh Konsultasi Lebih Lanjut?</h3>
-              <p className="text-purple-100 mb-6 text-lg">
-                Tim ahli gizi kami siap membantu Anda dengan konsultasi personal
-              </p>
-              <Link to="/konsultasi">
-                <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100">
-                  Konsultasi Sekarang
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          {/* Related Articles */}
-          {relatedArticles.length > 0 && (
-            <div className="mt-16">
-              <h3 className="text-3xl font-bold text-gray-900 mb-8">Artikel Terkait</h3>
-              <div className="grid md:grid-cols-2 gap-8">
-                {relatedArticles.map((related) => (
-                  <Link key={related.id} to={`/artikel/${related.slug}`}>
-                    <Card className="border-2 hover:border-purple-600 hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer h-full">
-                      <div className="h-48 overflow-hidden">
-                        <img 
-                          src={related.image} 
-                          alt={related.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                      </div>
-                      <CardContent className="p-6">
-                        <Badge className="bg-purple-100 text-purple-800 mb-3">
-                          {related.category}
-                        </Badge>
-                        <h4 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors line-clamp-2">
-                          {related.title}
-                        </h4>
-                        <p className="text-gray-600 line-clamp-3">{related.excerpt}</p>
-                        <div className="flex items-center justify-between mt-4 text-sm text-gray-500">
-                          <div className="flex items-center space-x-2">
-                            <User size={14} />
-                            <span className="text-xs">{related.author}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Calendar size={14} />
-                            <span className="text-xs">
-                              {new Date(related.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
-                            </span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
+        {/* Author Card */}
+        <Card className="mt-12 border-2">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-4">
+              <div className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-2xl">
+                {(artikel.author || artikel.author_name || 'A')[0]}
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-gray-900">{artikel.author || artikel.author_name || 'Admin'}</h3>
+                <p className="text-gray-600">Tim Sobat Giziku</p>
               </div>
             </div>
-          )}
-        </div>
+          </CardContent>
+        </Card>
       </article>
+
+      {/* Related Articles */}
+      {relatedArtikel.length > 0 && (
+        <section className="py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-8">Artikel Terkait</h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              {relatedArtikel.map((item) => (
+                <Link key={item.id} to={`/artikel/${item.slug}`}>
+                  <Card className="border-2 hover:border-purple-600 hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer h-full">
+                    <div className="h-48 overflow-hidden bg-purple-50">
+                      {item.image ? (
+                        <img 
+                          src={item.image} 
+                          alt={item.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-purple-200">
+                          <Tag size={48} />
+                        </div>
+                      )}
+                    </div>
+                    <CardContent className="p-6">
+                      <Badge className="bg-purple-100 text-purple-800 mb-3">{item.category}</Badge>
+                      <h3 className="font-bold text-lg text-gray-900 group-hover:text-purple-600 transition-colors line-clamp-2">
+                        {item.title}
+                      </h3>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 };
