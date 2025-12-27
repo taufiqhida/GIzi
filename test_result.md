@@ -179,6 +179,7 @@ test_plan:
     - "Dokter Konsultasi Management APIs"
     - "Chat Messaging APIs"
     - "Role-Based Access Control"
+    - "Complete Consultation and Chat Flow Integration"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
