@@ -129,7 +129,7 @@ async def get_users(role: Optional[str] = None, current_user: UserResponse = Dep
         raise HTTPException(status_code=403, detail="Not authorized")
     
     query = {"role": role} if role else {}
-    users = await db.users.find(query).to_list(1000)
+    users = await db.users.find(query, {"_id": 0}).to_list(1000)
     return [UserResponse(**user) for user in users]
 
 @admin_router.post("/users")
