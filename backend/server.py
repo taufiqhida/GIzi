@@ -243,6 +243,22 @@ async def delete_resep(resep_id: str, current_user: UserResponse = Depends(get_c
     
     return {"message": "Resep deleted"}
 
+@admin_router.put("/resep/{resep_id}")
+async def update_resep(resep_id: str, resep: ResepCreate, current_user: UserResponse = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    result = await db.resep.update_one(
+        {"id": resep_id},
+        {"$set": resep.dict()}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Resep not found")
+    
+    updated = await db.resep.find_one({"id": resep_id}, {"_id": 0})
+    return updated
+
 # Pasien Routes
 @pasien_router.get("/balita")
 async def get_my_balita(current_user: UserResponse = Depends(get_current_user)):
