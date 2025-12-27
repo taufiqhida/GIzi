@@ -62,7 +62,7 @@ class DataBalita(BaseModel):
     kelurahan: str
     usia: int
     status_kms: dict
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class DataBalitaCreate(BaseModel):
     nama_balita: str
