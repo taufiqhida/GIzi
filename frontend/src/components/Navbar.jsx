@@ -284,10 +284,16 @@ const Navbar = () => {
               Informasi
             </Link>
 
-            <Link to="/e-data" onClick={() => setIsOpen(false)}>
-              <Button className={`w-full justify-start ${isActive('/e-data') ? 'bg-purple-600 text-white' : 'bg-transparent text-gray-700 hover:bg-purple-50 hover:text-purple-600'}`}>
-                E-Data
-              </Button>
+            <Link
+              to="/e-data"
+              onClick={() => setIsOpen(false)}
+              className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                isActive('/e-data')
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-700 hover:bg-purple-50 hover:text-purple-600'
+              }`}
+            >
+              E-Data
             </Link>
 
             {/* Auth buttons for mobile */}
