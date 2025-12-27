@@ -303,7 +303,7 @@ async def accept_konsultasi(konsultasi_id: str, current_user: UserResponse = Dep
     
     result = await db.konsultasi.update_one(
         {"id": konsultasi_id},
-        {"$set": {"dokter_id": current_user.id, "status": "accepted", "updated_at": datetime.utcnow()}}
+        {"$set": {"dokter_id": current_user.id, "status": "accepted", "updated_at": datetime.now(timezone.utc)}}
     )
     
     if result.matched_count == 0:
