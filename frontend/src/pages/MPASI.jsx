@@ -1,24 +1,79 @@
-import React, { useState } from 'react';
-import { Clock, ChefHat, Utensils, Info, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Clock, ChefHat, Utensils, Info, CheckCircle2, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { resepMPASI } from '../data/mockData';
+import { publicAPI } from '../api';
+import { resepMPASI as mockResep } from '../data/mockData';
 
 const MPASI = () => {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [resepData, setResepData] = useState({
+    '6-8': [],
+    '9-11': [],
+    '12-23': [],
+    'snack': []
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadResep();
+  }, []);
+
+  const loadResep = async () => {
+    try {
+      const res = await publicAPI.getResep();
+      const apiResep = res.data;
+      
+      // Group by kategori
+      const grouped = {
+        '6-8': [],
+        '9-11': [],
+        '12-23': [],
+        'snack': []
+      };
+      
+      apiResep.forEach(r => {
+        if (grouped[r.kategori]) {
+          grouped[r.kategori].push(r);
+        }
+      });
+      
+      // Combine with mock data
+      const combined = {
+        '6-8': [...grouped['6-8'], ...mockResep['6-8']],
+        '9-11': [...grouped['9-11'], ...mockResep['9-11']],
+        '12-23': [...grouped['12-23'], ...mockResep['12-23']],
+        'snack': [...grouped['snack'], ...mockResep['snack']]
+      };
+      
+      setResepData(combined);
+    } catch (error) {
+      console.error('Load resep error:', error);
+      setResepData(mockResep);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const ResepCard = ({ resep }) => (
     <Card 
       className="border-2 hover:border-purple-600 hover:shadow-xl transition-all duration-300 cursor-pointer group"
       onClick={() => setSelectedRecipe(resep)}
     >
-      <div className="h-48 overflow-hidden">
-        <img 
-          src={resep.gambar} 
-          alt={resep.nama}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-        />
+      <div className="h-48 overflow-hidden bg-purple-50">
+        {resep.gambar ? (
+          <img 
+            src={resep.gambar} 
+            alt={resep.nama}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <ChefHat size={48} className="text-purple-200" />
+          </div>
+        )}
       </div>
       <CardHeader>
         <CardTitle className="text-lg group-hover:text-purple-600 transition-colors">
@@ -54,25 +109,28 @@ const MPASI = () => {
         </div>
 
         <div className="p-6">
-          <img 
-            src={resep.gambar} 
-            alt={resep.nama}
-            className="w-full h-80 object-cover rounded-xl mb-6"
-          />
+          {resep.gambar && (
+            <img 
+              src={resep.gambar} 
+              alt={resep.nama}
+              className="w-full h-80 object-cover rounded-xl mb-6"
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+          )}
 
           <div className="grid md:grid-cols-2 gap-4 mb-6">
             <div className="flex items-center space-x-3 p-4 bg-purple-50 rounded-lg">
               <Clock className="text-purple-600" size={24} />
               <div>
                 <div className="text-sm text-gray-600">Waktu Memasak</div>
-                <div className="font-semibold text-gray-900">{resep.waktu}</div>
+                <div className="font-semibold text-gray-900">{resep.waktu || '-'}</div>
               </div>
             </div>
             <div className="flex items-center space-x-3 p-4 bg-purple-50 rounded-lg">
               <Utensils className="text-purple-600" size={24} />
               <div>
                 <div className="text-sm text-gray-600">Porsi</div>
-                <div className="font-semibold text-gray-900">{resep.porsi}</div>
+                <div className="font-semibold text-gray-900">{resep.porsi || '-'}</div>
               </div>
             </div>
           </div>
@@ -82,64 +140,80 @@ const MPASI = () => {
           </p>
 
           <div className="grid md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <ChefHat className="mr-2 text-purple-600" size={24} />
-                Alat yang Dibutuhkan
-              </h3>
-              <ul className="space-y-2">
-                {resep.alat.map((item, index) => (
-                  <li key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <CheckCircle2 className="text-green-600 flex-shrink-0" size={20} />
-                    <span className="text-gray-700">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <Utensils className="mr-2 text-purple-600" size={24} />
-                Bahan-bahan
-              </h3>
-              <ul className="space-y-2">
-                {resep.bahan.map((item, index) => (
-                  <li key={index} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <span className="text-purple-600 font-bold flex-shrink-0">•</span>
-                    <span className="text-gray-700">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Cara Membuat</h3>
-            <ol className="space-y-3">
-              {resep.cara.map((step, index) => (
-                <li key={index} className="flex items-start space-x-4 p-4 bg-gradient-to-r from-purple-50 to-white rounded-lg border-l-4 border-purple-600">
-                  <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">
-                    {index + 1}
-                  </div>
-                  <span className="text-gray-700 pt-1">{step}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
-
-          <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-lg">
-            <div className="flex items-start space-x-3">
-              <Info className="text-blue-600 flex-shrink-0 mt-1" size={20} />
+            {resep.alat && resep.alat.length > 0 && (
               <div>
-                <h4 className="font-bold text-blue-900 mb-1">Tips:</h4>
-                <p className="text-blue-800">{resep.tips}</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                  <ChefHat className="mr-2 text-purple-600" size={24} />
+                  Alat yang Dibutuhkan
+                </h3>
+                <ul className="space-y-2">
+                  {resep.alat.map((item, index) => (
+                    <li key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                      <CheckCircle2 className="text-green-600 flex-shrink-0" size={20} />
+                      <span className="text-gray-700">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {resep.bahan && resep.bahan.length > 0 && (
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                  <Utensils className="mr-2 text-purple-600" size={24} />
+                  Bahan-bahan
+                </h3>
+                <ul className="space-y-2">
+                  {resep.bahan.map((item, index) => (
+                    <li key={index} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                      <span className="text-purple-600 font-bold flex-shrink-0">•</span>
+                      <span className="text-gray-700">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          {resep.cara && resep.cara.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Cara Membuat</h3>
+              <ol className="space-y-3">
+                {resep.cara.map((step, index) => (
+                  <li key={index} className="flex items-start space-x-4 p-4 bg-gradient-to-r from-purple-50 to-white rounded-lg border-l-4 border-purple-600">
+                    <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">
+                      {index + 1}
+                    </div>
+                    <span className="text-gray-700 pt-1">{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
+          {resep.tips && (
+            <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-lg">
+              <div className="flex items-start space-x-3">
+                <Info className="text-blue-600 flex-shrink-0 mt-1" size={20} />
+                <div>
+                  <h4 className="font-bold text-blue-900 mb-1">Tips:</h4>
+                  <p className="text-blue-800">{resep.tips}</p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
   );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin text-purple-600" size={48} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50">
@@ -181,16 +255,16 @@ const MPASI = () => {
           <Tabs defaultValue="6-8" className="w-full">
             <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 h-auto mb-12">
               <TabsTrigger value="6-8" className="text-base py-3">
-                6-8 Bulan
+                6-8 Bulan ({resepData['6-8'].length})
               </TabsTrigger>
               <TabsTrigger value="9-11" className="text-base py-3">
-                9-11 Bulan
+                9-11 Bulan ({resepData['9-11'].length})
               </TabsTrigger>
               <TabsTrigger value="12-23" className="text-base py-3">
-                12-23 Bulan
+                12-23 Bulan ({resepData['12-23'].length})
               </TabsTrigger>
               <TabsTrigger value="snack" className="text-base py-3">
-                Snack Sehat
+                Snack ({resepData['snack'].length})
               </TabsTrigger>
             </TabsList>
 
@@ -200,8 +274,8 @@ const MPASI = () => {
                 <p className="text-lg text-gray-600">Tekstur puree halus, 2-3 kali sehari</p>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {resepMPASI['6-8'].map((resep) => (
-                  <ResepCard key={resep.id} resep={resep} />
+                {resepData['6-8'].map((resep, idx) => (
+                  <ResepCard key={resep.id || idx} resep={resep} />
                 ))}
               </div>
             </TabsContent>
@@ -212,8 +286,8 @@ const MPASI = () => {
                 <p className="text-lg text-gray-600">Tekstur mashed/cincang, 3-4 kali sehari</p>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {resepMPASI['9-11'].map((resep) => (
-                  <ResepCard key={resep.id} resep={resep} />
+                {resepData['9-11'].map((resep, idx) => (
+                  <ResepCard key={resep.id || idx} resep={resep} />
                 ))}
               </div>
             </TabsContent>
@@ -224,8 +298,8 @@ const MPASI = () => {
                 <p className="text-lg text-gray-600">Makanan keluarga, 3-4 kali sehari + snack</p>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {resepMPASI['12-23'].map((resep) => (
-                  <ResepCard key={resep.id} resep={resep} />
+                {resepData['12-23'].map((resep, idx) => (
+                  <ResepCard key={resep.id || idx} resep={resep} />
                 ))}
               </div>
             </TabsContent>
@@ -236,8 +310,8 @@ const MPASI = () => {
                 <p className="text-lg text-gray-600">Camilan bergizi untuk anak 9+ bulan</p>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {resepMPASI['snack'].map((resep) => (
-                  <ResepCard key={resep.id} resep={resep} />
+                {resepData['snack'].map((resep, idx) => (
+                  <ResepCard key={resep.id || idx} resep={resep} />
                 ))}
               </div>
             </TabsContent>
