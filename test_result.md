@@ -107,6 +107,18 @@ backend:
         agent: "testing"
         comment: "Unauthorized access properly blocked. Cross-role access restrictions working correctly (401/403 responses)."
 
+  - task: "Complete Consultation and Chat Flow Integration"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Comprehensive end-to-end chat flow test completed successfully. All 11 test scenarios passed: 1) Pasien login with pasien@sobatgizi.com, 2) Retrieved existing balita data, 3) Created consultation request with 'pending' status, 4) Dokter login with dokter@sobatgizi.com, 5) Dokter retrieved consultation list, 6) Dokter accepted consultation, 7) Verified status changed to 'accepted', 8) Dokter sent message successfully, 9) Pasien sent reply message, 10) Retrieved all messages with correct sender roles, 11) WebSocket endpoint verified at /ws/chat/{konsultasi_id}?token={token}. Complete consultation and chat flow is fully functional."
+
 frontend:
   - task: "Frontend Authentication Flow"
     implemented: true
