@@ -15,7 +15,7 @@ class User(BaseModel):
     pengalaman: Optional[str] = None  # for dokter
     keahlian: Optional[List[str]] = []  # for dokter
     jadwal: Optional[str] = None  # for dokter
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class UserCreate(BaseModel):
     email: EmailStr
