@@ -44,6 +44,13 @@ class UserResponse(BaseModel):
     keahlian: Optional[List[str]] = []
     jadwal: Optional[str] = None
 
+class Pengukuran(BaseModel):
+    tanggal: str
+    berat_badan: float
+    tinggi_badan: float
+    usia_bulan: int
+    status_kms: dict
+
 class DataBalita(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str  # pasien ID
@@ -62,6 +69,7 @@ class DataBalita(BaseModel):
     kelurahan: str
     usia: int
     status_kms: dict
+    riwayat: List[Pengukuran] = []
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class DataBalitaCreate(BaseModel):
