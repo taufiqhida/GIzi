@@ -399,24 +399,24 @@ async def root():
 
 @api_router.get("/artikel/public")
 async def get_public_artikel():
-    artikel = await db.artikel.find().to_list(100)
+    artikel = await db.artikel.find({}, {"_id": 0}).to_list(100)
     return artikel
 
 @api_router.get("/artikel/public/{slug}")
 async def get_artikel_by_slug(slug: str):
-    artikel = await db.artikel.find_one({"slug": slug})
+    artikel = await db.artikel.find_one({"slug": slug}, {"_id": 0})
     if not artikel:
         raise HTTPException(status_code=404, detail="Artikel not found")
     return artikel
 
 @api_router.get("/resep/public")
 async def get_public_resep():
-    resep = await db.resep.find().to_list(1000)
+    resep = await db.resep.find({}, {"_id": 0}).to_list(1000)
     return resep
 
 @api_router.get("/dokter/public")
 async def get_public_dokter():
-    dokter = await db.users.find({"role": "dokter"}).to_list(100)
+    dokter = await db.users.find({"role": "dokter"}, {"_id": 0}).to_list(100)
     return [UserResponse(**d) for d in dokter]
 
 # Include routers
