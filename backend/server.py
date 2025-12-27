@@ -227,7 +227,7 @@ async def get_my_balita(current_user: UserResponse = Depends(get_current_user)):
     if current_user.role != "pasien":
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    balita = await db.data_balita.find({"user_id": current_user.id}).to_list(1000)
+    balita = await db.data_balita.find({"user_id": current_user.id}, {"_id": 0}).to_list(1000)
     return balita
 
 @pasien_router.post("/balita")
