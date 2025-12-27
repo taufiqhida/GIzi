@@ -98,8 +98,9 @@ class ChatMessage(BaseModel):
     konsultasi_id: str
     sender_id: str
     sender_role: str
+    sender_name: str = ""
     message: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ChatMessageCreate(BaseModel):
     konsultasi_id: str
