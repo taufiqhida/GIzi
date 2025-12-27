@@ -30,6 +30,32 @@ admin_router = APIRouter(prefix="/admin", tags=["Admin"])
 dokter_router = APIRouter(prefix="/dokter", tags=["Dokter"])
 pasien_router = APIRouter(prefix="/pasien", tags=["Pasien"])
 
+# WebSocket Connection Manager
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: Dict[str, List[WebSocket]] = {}
+    
+    async def connect(self, websocket: WebSocket, konsultasi_id: str):
+        await websocket.accept()
+        if konsultasi_id not in self.active_connections:
+            self.active_connections[konsultasi_id] = []
+        self.active_connections[konsultasi_id].append(websocket)
+    
+    def disconnect(self, websocket: WebSocket, konsultasi_id: str):
+        if konsultasi_id in self.active_connections:
+            if websocket in self.active_connections[konsultasi_id]:
+                self.active_connections[konsultasi_id].remove(websocket)
+    
+    async def broadcast(self, konsultasi_id: str, message: dict):
+        if konsultasi_id in self.active_connections:
+            for connection in self.active_connections[konsultasi_id]:
+                try:
+                    await connection.send_json(message)
+                except:
+                    pass
+
+manager = ConnectionManager()
+
 # Dependency to get current user
 async def get_current_user(authorization: Optional[str] = Header(None)):
     if not authorization or not authorization.startswith('Bearer '):
