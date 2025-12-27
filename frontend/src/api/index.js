@@ -35,9 +35,11 @@ export const adminAPI = {
   deleteUser: (userId) => api.delete(`/admin/users/${userId}`),
   createArtikel: (data) => api.post('/admin/artikel', data),
   getArtikel: () => api.get('/admin/artikel'),
+  updateArtikel: (id, data) => api.put(`/admin/artikel/${id}`, data),
   deleteArtikel: (id) => api.delete(`/admin/artikel/${id}`),
   createResep: (data) => api.post('/admin/resep', data),
   getResep: () => api.get('/admin/resep'),
+  updateResep: (id, data) => api.put(`/admin/resep/${id}`, data),
   deleteResep: (id) => api.delete(`/admin/resep/${id}`),
 };
 
