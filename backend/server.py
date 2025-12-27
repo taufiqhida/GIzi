@@ -179,7 +179,7 @@ async def get_all_artikel(current_user: UserResponse = Depends(get_current_user)
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    artikel = await db.artikel.find().to_list(1000)
+    artikel = await db.artikel.find({}, {"_id": 0}).to_list(1000)
     return artikel
 
 @admin_router.delete("/artikel/{artikel_id}")
