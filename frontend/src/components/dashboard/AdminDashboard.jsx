@@ -7,7 +7,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Users, FileText, Utensils, Plus, Trash2, X, Edit, Eye } from 'lucide-react';
+import { Users, FileText, Utensils, Plus, Trash2, X, Edit } from 'lucide-react';
 import { useToast } from '../../hooks/use-toast';
 
 const AdminDashboard = () => {
@@ -19,6 +19,8 @@ const AdminDashboard = () => {
   const [showUserForm, setShowUserForm] = useState(false);
   const [showArtikelForm, setShowArtikelForm] = useState(false);
   const [showResepForm, setShowResepForm] = useState(false);
+  const [editingArtikel, setEditingArtikel] = useState(null);
+  const [editingResep, setEditingResep] = useState(null);
   const [userForm, setUserForm] = useState({ email: '', password: '', nama: '', role: 'pasien', nohp: '' });
   const [artikelForm, setArtikelForm] = useState({
     title: '', excerpt: '', content: '', image: '', category: 'Gizi Anak'
@@ -71,16 +73,35 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleCreateArtikel = async (e) => {
+  // ARTIKEL HANDLERS
+  const handleEditArtikel = (a) => {
+    setEditingArtikel(a);
+    setArtikelForm({
+      title: a.title,
+      excerpt: a.excerpt,
+      content: a.content,
+      image: a.image || '',
+      category: a.category
+    });
+    setShowArtikelForm(true);
+  };
+
+  const handleSaveArtikel = async (e) => {
     e.preventDefault();
     try {
-      await adminAPI.createArtikel(artikelForm);
-      toast({ title: 'Artikel berhasil dibuat!', className: 'bg-green-50 border-green-500' });
+      if (editingArtikel) {
+        await adminAPI.updateArtikel(editingArtikel.id, artikelForm);
+        toast({ title: 'Artikel berhasil diupdate!', className: 'bg-green-50 border-green-500' });
+      } else {
+        await adminAPI.createArtikel(artikelForm);
+        toast({ title: 'Artikel berhasil dibuat!', className: 'bg-green-50 border-green-500' });
+      }
       setShowArtikelForm(false);
+      setEditingArtikel(null);
       setArtikelForm({ title: '', excerpt: '', content: '', image: '', category: 'Gizi Anak' });
       loadData();
     } catch (error) {
-      toast({ title: 'Error', description: error.response?.data?.detail || 'Gagal membuat artikel', variant: 'destructive' });
+      toast({ title: 'Error', description: error.response?.data?.detail || 'Gagal menyimpan artikel', variant: 'destructive' });
     }
   };
 
@@ -95,7 +116,31 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleCreateResep = async (e) => {
+  const closeArtikelForm = () => {
+    setShowArtikelForm(false);
+    setEditingArtikel(null);
+    setArtikelForm({ title: '', excerpt: '', content: '', image: '', category: 'Gizi Anak' });
+  };
+
+  // RESEP HANDLERS
+  const handleEditResep = (r) => {
+    setEditingResep(r);
+    setResepForm({
+      kategori: r.kategori,
+      nama: r.nama,
+      gambar: r.gambar || '',
+      deskripsi: r.deskripsi,
+      waktu: r.waktu || '',
+      porsi: r.porsi || '',
+      alat: Array.isArray(r.alat) ? r.alat.join('\n') : '',
+      bahan: Array.isArray(r.bahan) ? r.bahan.join('\n') : '',
+      cara: Array.isArray(r.cara) ? r.cara.join('\n') : '',
+      tips: r.tips || ''
+    });
+    setShowResepForm(true);
+  };
+
+  const handleSaveResep = async (e) => {
     e.preventDefault();
     try {
       const resepData = {
@@ -104,16 +149,23 @@ const AdminDashboard = () => {
         bahan: resepForm.bahan.split('\n').filter(b => b.trim()),
         cara: resepForm.cara.split('\n').filter(c => c.trim())
       };
-      await adminAPI.createResep(resepData);
-      toast({ title: 'Resep berhasil dibuat!', className: 'bg-green-50 border-green-500' });
+      
+      if (editingResep) {
+        await adminAPI.updateResep(editingResep.id, resepData);
+        toast({ title: 'Resep berhasil diupdate!', className: 'bg-green-50 border-green-500' });
+      } else {
+        await adminAPI.createResep(resepData);
+        toast({ title: 'Resep berhasil dibuat!', className: 'bg-green-50 border-green-500' });
+      }
       setShowResepForm(false);
+      setEditingResep(null);
       setResepForm({
         kategori: '6-8', nama: '', gambar: '', deskripsi: '', waktu: '', porsi: '',
         alat: '', bahan: '', cara: '', tips: ''
       });
       loadData();
     } catch (error) {
-      toast({ title: 'Error', description: error.response?.data?.detail || 'Gagal membuat resep', variant: 'destructive' });
+      toast({ title: 'Error', description: error.response?.data?.detail || 'Gagal menyimpan resep', variant: 'destructive' });
     }
   };
 
@@ -126,6 +178,15 @@ const AdminDashboard = () => {
     } catch (error) {
       toast({ title: 'Error', description: 'Gagal hapus resep', variant: 'destructive' });
     }
+  };
+
+  const closeResepForm = () => {
+    setShowResepForm(false);
+    setEditingResep(null);
+    setResepForm({
+      kategori: '6-8', nama: '', gambar: '', deskripsi: '', waktu: '', porsi: '',
+      alat: '', bahan: '', cara: '', tips: ''
+    });
   };
 
   const kategoris = [
@@ -241,20 +302,20 @@ const AdminDashboard = () => {
           <TabsContent value="artikel" className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Manage Artikel Kesehatan</h2>
-              <Button onClick={() => setShowArtikelForm(!showArtikelForm)} className="bg-purple-600">
-                {showArtikelForm ? <X size={18} className="mr-2" /> : <Plus size={18} className="mr-2" />}
-                {showArtikelForm ? 'Tutup' : 'Tambah Artikel'}
+              <Button onClick={() => { closeArtikelForm(); setShowArtikelForm(true); }} className="bg-purple-600">
+                <Plus size={18} className="mr-2" />
+                Tambah Artikel
               </Button>
             </div>
 
             {showArtikelForm && (
               <Card className="border-2 border-purple-200">
                 <CardHeader>
-                  <CardTitle>Tambah Artikel Baru</CardTitle>
-                  <CardDescription>Isi semua field untuk membuat artikel kesehatan baru</CardDescription>
+                  <CardTitle>{editingArtikel ? 'Edit Artikel' : 'Tambah Artikel Baru'}</CardTitle>
+                  <CardDescription>Isi semua field untuk {editingArtikel ? 'mengupdate' : 'membuat'} artikel</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleCreateArtikel} className="space-y-4">
+                  <form onSubmit={handleSaveArtikel} className="space-y-4">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="md:col-span-2">
                         <Label>Judul Artikel *</Label>
@@ -283,7 +344,12 @@ const AdminDashboard = () => {
                         <Textarea value={artikelForm.content} onChange={e => setArtikelForm({...artikelForm, content: e.target.value})} placeholder="Tulis isi artikel lengkap di sini..." rows={8} required />
                       </div>
                     </div>
-                    <Button type="submit" className="bg-purple-600">Publikasikan Artikel</Button>
+                    <div className="flex gap-2">
+                      <Button type="submit" className="bg-purple-600">
+                        {editingArtikel ? 'Update Artikel' : 'Publikasikan Artikel'}
+                      </Button>
+                      <Button type="button" variant="outline" onClick={closeArtikelForm}>Batal</Button>
+                    </div>
                   </form>
                 </CardContent>
               </Card>
@@ -312,7 +378,14 @@ const AdminDashboard = () => {
                               <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">{a.category}</span>
                               <h3 className="font-bold text-lg mt-2">{a.title}</h3>
                             </div>
-                            <Button variant="ghost" size="sm" onClick={() => handleDeleteArtikel(a.id)}><Trash2 size={16} className="text-red-600" /></Button>
+                            <div className="flex gap-1">
+                              <Button variant="ghost" size="sm" onClick={() => handleEditArtikel(a)}>
+                                <Edit size={16} className="text-blue-600" />
+                              </Button>
+                              <Button variant="ghost" size="sm" onClick={() => handleDeleteArtikel(a.id)}>
+                                <Trash2 size={16} className="text-red-600" />
+                              </Button>
+                            </div>
                           </div>
                           <p className="text-sm text-gray-600 mt-2 line-clamp-2">{a.excerpt}</p>
                           <p className="text-xs text-gray-400 mt-2">Slug: {a.slug}</p>
@@ -329,20 +402,20 @@ const AdminDashboard = () => {
           <TabsContent value="resep" className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Manage Resep MPASI</h2>
-              <Button onClick={() => setShowResepForm(!showResepForm)} className="bg-purple-600">
-                {showResepForm ? <X size={18} className="mr-2" /> : <Plus size={18} className="mr-2" />}
-                {showResepForm ? 'Tutup' : 'Tambah Resep'}
+              <Button onClick={() => { closeResepForm(); setShowResepForm(true); }} className="bg-purple-600">
+                <Plus size={18} className="mr-2" />
+                Tambah Resep
               </Button>
             </div>
 
             {showResepForm && (
               <Card className="border-2 border-purple-200">
                 <CardHeader>
-                  <CardTitle>Tambah Resep MPASI Baru</CardTitle>
+                  <CardTitle>{editingResep ? 'Edit Resep' : 'Tambah Resep MPASI Baru'}</CardTitle>
                   <CardDescription>Isi semua field. Untuk alat, bahan, dan cara, tulis satu item per baris.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleCreateResep} className="space-y-4">
+                  <form onSubmit={handleSaveResep} className="space-y-4">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
                         <Label>Nama Resep *</Label>
@@ -387,7 +460,12 @@ const AdminDashboard = () => {
                         <Textarea value={resepForm.tips} onChange={e => setResepForm({...resepForm, tips: e.target.value})} placeholder="Tips memasak..." rows={2} />
                       </div>
                     </div>
-                    <Button type="submit" className="bg-purple-600">Simpan Resep</Button>
+                    <div className="flex gap-2">
+                      <Button type="submit" className="bg-purple-600">
+                        {editingResep ? 'Update Resep' : 'Simpan Resep'}
+                      </Button>
+                      <Button type="button" variant="outline" onClick={closeResepForm}>Batal</Button>
+                    </div>
                   </form>
                 </CardContent>
               </Card>
@@ -421,7 +499,14 @@ const AdminDashboard = () => {
                           </span>
                           <h3 className="font-bold text-lg mt-2">{r.nama}</h3>
                         </div>
-                        <Button variant="ghost" size="sm" onClick={() => handleDeleteResep(r.id)}><Trash2 size={16} className="text-red-600" /></Button>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="sm" onClick={() => handleEditResep(r)}>
+                            <Edit size={16} className="text-blue-600" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleDeleteResep(r.id)}>
+                            <Trash2 size={16} className="text-red-600" />
+                          </Button>
+                        </div>
                       </div>
                       <p className="text-sm text-gray-600 mt-2 line-clamp-2">{r.deskripsi}</p>
                       <div className="flex gap-4 mt-3 text-xs text-gray-500">
