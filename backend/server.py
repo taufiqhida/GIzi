@@ -280,7 +280,7 @@ async def get_my_konsultasi(current_user: UserResponse = Depends(get_current_use
     if current_user.role != "pasien":
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    konsultasi = await db.konsultasi.find({"pasien_id": current_user.id}).to_list(1000)
+    konsultasi = await db.konsultasi.find({"pasien_id": current_user.id}, {"_id": 0}).to_list(1000)
     return konsultasi
 
 # Dokter Routes
