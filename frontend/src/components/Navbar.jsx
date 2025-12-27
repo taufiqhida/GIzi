@@ -155,12 +155,38 @@ const Navbar = () => {
           </div>
 
           {/* CTA Button */}
-          <div className="hidden lg:block">
-            <Link to="/konsultasi">
-              <Button className="bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 shadow-lg shadow-purple-600/50 transition-all duration-300 transform hover:scale-105 text-base px-6">
-                Konsultasi Sekarang
-              </Button>
-            </Link>
+          <div className="hidden lg:flex items-center space-x-2">
+            {user ? (
+              <>
+                <Link to="/dashboard">
+                  <Button variant="outline" className="border-purple-600 text-purple-600 hover:bg-purple-50">
+                    <User size={18} className="mr-2" />
+                    {user.nama}
+                  </Button>
+                </Link>
+                <Button 
+                  variant="ghost" 
+                  onClick={handleLogout}
+                  className="text-gray-600 hover:text-red-600"
+                >
+                  <LogOut size={18} />
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="outline" className="border-purple-600 text-purple-600 hover:bg-purple-50">
+                    <LogIn size={18} className="mr-2" />
+                    Masuk
+                  </Button>
+                </Link>
+                <Link to="/konsultasi">
+                  <Button className="bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 shadow-lg shadow-purple-600/50 transition-all duration-300 transform hover:scale-105 text-base px-6">
+                    Konsultasi Sekarang
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
