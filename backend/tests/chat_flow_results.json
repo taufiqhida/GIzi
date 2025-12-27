@@ -1,0 +1,87 @@
+{
+  "summary": {
+    "passed": 11,
+    "failed": 0,
+    "total": 11,
+    "success_rate": 100.0
+  },
+  "results": [
+    {
+      "test": "Pasien Login",
+      "success": true,
+      "message": "Successfully logged in as Ibu Sari",
+      "details": null,
+      "timestamp": "2025-12-27T10:27:28.331210"
+    },
+    {
+      "test": "Get Balita Data",
+      "success": true,
+      "message": "Found 1 balita records. Using: Andi Saputra",
+      "details": null,
+      "timestamp": "2025-12-27T10:27:28.424552"
+    },
+    {
+      "test": "Create Consultation",
+      "success": true,
+      "message": "Consultation created with status: pending",
+      "details": null,
+      "timestamp": "2025-12-27T10:27:28.495929"
+    },
+    {
+      "test": "Dokter Login",
+      "success": true,
+      "message": "Successfully logged in as Dr. Dr. Test Dokter",
+      "details": null,
+      "timestamp": "2025-12-27T10:27:28.944847"
+    },
+    {
+      "test": "Get Consultation List",
+      "success": true,
+      "message": "Found consultation in list. Status: pending",
+      "details": null,
+      "timestamp": "2025-12-27T10:27:29.034577"
+    },
+    {
+      "test": "Accept Consultation",
+      "success": true,
+      "message": "Consultation accepted: Konsultasi accepted",
+      "details": null,
+      "timestamp": "2025-12-27T10:27:29.115128"
+    },
+    {
+      "test": "Verify Consultation Status",
+      "success": true,
+      "message": "Consultation status verified as 'accepted'",
+      "details": null,
+      "timestamp": "2025-12-27T10:27:29.190090"
+    },
+    {
+      "test": "Dokter Send Message",
+      "success": true,
+      "message": "Message sent successfully by dokter",
+      "details": null,
+      "timestamp": "2025-12-27T10:27:29.259252"
+    },
+    {
+      "test": "Pasien Send Reply",
+      "success": true,
+      "message": "Reply sent successfully by pasien",
+      "details": null,
+      "timestamp": "2025-12-27T10:27:29.345552"
+    },
+    {
+      "test": "Get All Messages",
+      "success": true,
+      "message": "Found 2 messages: 1 from dokter, 1 from pasien",
+      "details": null,
+      "timestamp": "2025-12-27T10:27:29.422055"
+    },
+    {
+      "test": "WebSocket Endpoint",
+      "success": true,
+      "message": "WebSocket endpoint verified: /ws/chat/62a99cdb-59a7-4d30-8c20-302e14022dcc?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiZTA2YTcyYy0wOGM1LTQyYjAtOTZjNC0yYmUxNzdhYmVlZjgiLCJyb2xlIjoiZG9rdGVyIiwiZXhwIjoxNzY3NDM2MDQ4fQ.-Y_LLS2wOqs1X2DFbnzZd6jvjhKyYO5I9YVZcE_-qu8",
+      "details": null,
+      "timestamp": "2025-12-27T10:27:29.424073"
+    }
+  ]
+}
