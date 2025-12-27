@@ -116,7 +116,7 @@ class Artikel(BaseModel):
     category: str
     author_id: str
     author_name: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ArtikelCreate(BaseModel):
     title: str
