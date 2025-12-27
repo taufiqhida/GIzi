@@ -207,7 +207,7 @@ async def get_all_resep(current_user: UserResponse = Depends(get_current_user)):
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    resep = await db.resep.find().to_list(1000)
+    resep = await db.resep.find({}, {"_id": 0}).to_list(1000)
     return resep
 
 @admin_router.delete("/resep/{resep_id}")
