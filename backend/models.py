@@ -86,8 +86,8 @@ class Konsultasi(BaseModel):
     balita_id: str
     keluhan: str
     status: str = "pending"  # pending, accepted, rejected, completed
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class KonsultasiCreate(BaseModel):
     balita_id: str
