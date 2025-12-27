@@ -137,7 +137,7 @@ class ResepMPASI(BaseModel):
     bahan: List[str]
     cara: List[str]
     tips: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ResepCreate(BaseModel):
     kategori: str
