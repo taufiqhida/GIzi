@@ -332,16 +332,65 @@ async def send_message(msg: ChatMessageCreate, current_user: UserResponse = Depe
     message = ChatMessage(
         **msg.dict(),
         sender_id=current_user.id,
-        sender_role=current_user.role
+        sender_role=current_user.role,
+        sender_name=current_user.nama
     )
     
     await db.chat_messages.insert_one(message.dict())
+    
+    # Broadcast to WebSocket connections
+    await manager.broadcast(msg.konsultasi_id, {
+        "type": "new_message",
+        "data": message.dict()
+    })
+    
     return message
 
 @api_router.get("/chat/{konsultasi_id}")
 async def get_messages(konsultasi_id: str, current_user: UserResponse = Depends(get_current_user)):
-    messages = await db.chat_messages.find({"konsultasi_id": konsultasi_id}).sort("created_at", 1).to_list(1000)
+    messages = await db.chat_messages.find(
+        {"konsultasi_id": konsultasi_id}, 
+        {"_id": 0}
+    ).sort("created_at", 1).to_list(1000)
     return messages
+
+# WebSocket endpoint for real-time chat
+@app.websocket("/ws/chat/{konsultasi_id}")
+async def websocket_chat(websocket: WebSocket, konsultasi_id: str, token: str = None):
+    # Verify token
+    if not token:
+        await websocket.close(code=4001)
+        return
+    
+    payload = decode_token(token)
+    if not payload:
+        await websocket.close(code=4001)
+        return
+    
+    await manager.connect(websocket, konsultasi_id)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            msg_data = json.loads(data)
+            
+            # Create and save message
+            message = ChatMessage(
+                konsultasi_id=konsultasi_id,
+                sender_id=payload.get("sub"),
+                sender_role=payload.get("role"),
+                sender_name=msg_data.get("sender_name", "User"),
+                message=msg_data.get("message", "")
+            )
+            
+            await db.chat_messages.insert_one(message.dict())
+            
+            # Broadcast to all connections in this consultation
+            await manager.broadcast(konsultasi_id, {
+                "type": "new_message",
+                "data": message.dict()
+            })
+    except WebSocketDisconnect:
+        manager.disconnect(websocket, konsultasi_id)
 
 # Public Routes
 @api_router.get("/")
