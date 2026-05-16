@@ -114,13 +114,6 @@ const Navbar = () => {
                           </NavigationMenuLink>
                         </Link>
                       </li>
-                      <li>
-                        <Link to="/statistik">
-                          <NavigationMenuLink className="block px-4 py-3 rounded-lg hover:bg-purple-50 hover:text-purple-600 transition-colors" data-testid="nav-statistik">
-                            Statistik Kelurahan
-                          </NavigationMenuLink>
-                        </Link>
-                      </li>
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
@@ -253,13 +246,6 @@ const Navbar = () => {
                 className="block px-4 py-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all"
               >
                 Resep MPASI
-              </Link>
-              <Link
-                to="/statistik"
-                onClick={() => setIsOpen(false)}
-                className="block px-4 py-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all"
-              >
-                Statistik Kelurahan
               </Link>
             </div>
 
