@@ -128,17 +128,6 @@ const Navbar = () => {
             </NavigationMenu>
 
             <Link
-              to="/data-balita"
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                isActive('/data-balita')
-                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/50'
-                  : 'text-gray-700 hover:bg-purple-50 hover:text-purple-600'
-              }`}
-            >
-              Data Balita
-            </Link>
-
-            <Link
               to="/informasi"
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                 isActive('/informasi')
@@ -273,18 +262,6 @@ const Navbar = () => {
                 Statistik Kelurahan
               </Link>
             </div>
-
-            <Link
-              to="/data-balita"
-              onClick={() => setIsOpen(false)}
-              className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                isActive('/data-balita')
-                  ? 'bg-purple-600 text-white'
-                  : 'text-gray-700 hover:bg-purple-50 hover:text-purple-600'
-              }`}
-            >
-              Data Balita
-            </Link>
 
             <Link
               to="/informasi"
