@@ -21,6 +21,7 @@ const GrowthCurveModal = ({ balita, onClose, onUpdate }) => {
     tinggi_badan: '',
   });
   const [showEdit, setShowEdit] = useState(false);
+  const [adding, setAdding] = useState(false);
   const [editForm, setEditForm] = useState({
     nama_balita: balita.nama_balita,
     tanggal_lahir: balita.tanggal_lahir,
@@ -60,6 +61,8 @@ const GrowthCurveModal = ({ balita, onClose, onUpdate }) => {
 
   const handleAddPengukuran = async (e) => {
     e.preventDefault();
+    if (adding) return;
+    setAdding(true);
     try {
       const res = await pasienAPI.addPengukuran(balita.id, {
         tanggal: form.tanggal,
@@ -72,6 +75,8 @@ const GrowthCurveModal = ({ balita, onClose, onUpdate }) => {
       onUpdate && onUpdate();
     } catch (err) {
       toast({ title: 'Gagal', description: 'Tidak bisa menambah pengukuran', variant: 'destructive' });
+    } finally {
+      setAdding(false);
     }
   };
 
@@ -227,9 +232,9 @@ const GrowthCurveModal = ({ balita, onClose, onUpdate }) => {
                   />
                 </div>
                 <div className="flex items-end">
-                  <Button type="submit" className="w-full bg-purple-600" data-testid="submit-pengukuran">
+                  <Button type="submit" className="w-full bg-purple-600" disabled={adding} data-testid="submit-pengukuran">
                     <Plus size={16} className="mr-1" />
-                    Simpan
+                    {adding ? 'Menyimpan...' : 'Simpan'}
                   </Button>
                 </div>
               </form>

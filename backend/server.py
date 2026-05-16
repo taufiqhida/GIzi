@@ -422,7 +422,21 @@ async def delete_pengukuran(balita_id: str, index: int, current_user: UserRespon
     if index < 0 or index >= len(riwayat):
         raise HTTPException(status_code=400, detail="Invalid index")
     riwayat.pop(index)
-    await db.data_balita.update_one({"id": balita_id}, {"$set": {"riwayat": riwayat}})
+    riwayat_sorted = sorted(riwayat, key=lambda x: x["tanggal"])
+    
+    update = {"riwayat": riwayat_sorted}
+    # Recompute current fields from latest remaining measurement
+    if riwayat_sorted:
+        latest = riwayat_sorted[-1]
+        lahir = datetime.strptime(balita["tanggal_lahir"], '%Y-%m-%d')
+        sekarang = datetime.now()
+        usia_now = (sekarang.year - lahir.year) * 12 + (sekarang.month - lahir.month)
+        update["berat_badan"] = latest["berat_badan"]
+        update["tinggi_badan"] = latest["tinggi_badan"]
+        update["usia"] = usia_now
+        update["status_kms"] = _calc_status_kms(latest["berat_badan"], usia_now)
+    
+    await db.data_balita.update_one({"id": balita_id}, {"$set": update})
     return {"message": "Pengukuran deleted"}
 
 @pasien_router.post("/konsultasi")
