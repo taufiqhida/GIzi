@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Clock, ChefHat, Utensils, Info, CheckCircle2, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -16,45 +16,32 @@ const MPASI = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadResep();
-  }, []);
-
-  const loadResep = async () => {
+  const loadResep = useCallback(async () => {
     try {
       const res = await publicAPI.getResep();
       const apiResep = res.data;
-      
-      // Group by kategori
-      const grouped = {
-        '6-8': [],
-        '9-11': [],
-        '12-23': [],
-        'snack': []
-      };
-      
+      const grouped = { '6-8': [], '9-11': [], '12-23': [], 'snack': [] };
       apiResep.forEach(r => {
-        if (grouped[r.kategori]) {
-          grouped[r.kategori].push(r);
-        }
+        if (grouped[r.kategori]) grouped[r.kategori].push(r);
       });
-      
-      // Combine with mock data
       const combined = {
         '6-8': [...grouped['6-8'], ...mockResep['6-8']],
         '9-11': [...grouped['9-11'], ...mockResep['9-11']],
         '12-23': [...grouped['12-23'], ...mockResep['12-23']],
         'snack': [...grouped['snack'], ...mockResep['snack']]
       };
-      
       setResepData(combined);
     } catch (error) {
-      console.error('Load resep error:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Load resep error:', error);
       setResepData(mockResep);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadResep();
+  }, [loadResep]);
 
   const ResepCard = ({ resep }) => (
     <Card 

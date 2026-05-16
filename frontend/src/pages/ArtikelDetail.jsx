@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Calendar, User, ArrowLeft, Tag, Clock, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -14,14 +14,9 @@ const ArtikelDetail = () => {
   const [loading, setLoading] = useState(true);
   const [relatedArtikel, setRelatedArtikel] = useState([]);
 
-  useEffect(() => {
-    loadArtikel();
-  }, [slug]);
-
-  const loadArtikel = async () => {
+  const loadArtikel = useCallback(async () => {
     setLoading(true);
     try {
-      // Try to fetch from API first
       const res = await publicAPI.getArtikelBySlug(slug);
       if (res.data) {
         setArtikel({
@@ -31,14 +26,12 @@ const ArtikelDetail = () => {
         });
       }
     } catch (error) {
-      // Fallback to mock data
       const mockData = mockArtikel.find(a => a.slug === slug);
       setArtikel(mockData);
     } finally {
       setLoading(false);
     }
 
-    // Load related articles
     try {
       const allRes = await publicAPI.getArtikel();
       const related = allRes.data.filter(a => a.slug !== slug).slice(0, 3);
@@ -50,7 +43,11 @@ const ArtikelDetail = () => {
     } catch {
       setRelatedArtikel(mockArtikel.filter(a => a.slug !== slug).slice(0, 3));
     }
-  };
+  }, [slug]);
+
+  useEffect(() => {
+    loadArtikel();
+  }, [loadArtikel]);
 
   if (loading) {
     return (

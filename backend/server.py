@@ -290,15 +290,140 @@ async def create_balita(data: DataBalitaCreate, current_user: UserResponse = Dep
     else:
         status_kms = {"status": "Gizi Baik", "warna": "Hijau", "color": "green"}
     
+    # Initial measurement as first riwayat entry
+    initial_pengukuran = Pengukuran(
+        tanggal=sekarang.strftime('%Y-%m-%d'),
+        berat_badan=data.berat_badan,
+        tinggi_badan=data.tinggi_badan,
+        usia_bulan=usia,
+        status_kms=status_kms
+    )
+    
     balita = DataBalita(
         **data.dict(),
         user_id=current_user.id,
         usia=usia,
-        status_kms=status_kms
+        status_kms=status_kms,
+        riwayat=[initial_pengukuran]
     )
     
     await db.data_balita.insert_one(balita.dict())
     return balita
+
+def _calc_status_kms(berat_badan: float, usia_bulan: int) -> dict:
+    median_weight = 7.3 + (usia_bulan * 0.16)
+    percentile = (berat_badan / median_weight) * 100 if median_weight > 0 else 100
+    if percentile < 70:
+        return {"status": "BGM", "warna": "Merah", "color": "red"}
+    elif percentile < 80:
+        return {"status": "Gizi Kurang", "warna": "Kuning", "color": "yellow"}
+    return {"status": "Gizi Baik", "warna": "Hijau", "color": "green"}
+
+@pasien_router.put("/balita/{balita_id}")
+async def update_balita(balita_id: str, data: DataBalitaUpdate, current_user: UserResponse = Depends(get_current_user)):
+    if current_user.role != "pasien":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    balita = await db.data_balita.find_one({"id": balita_id, "user_id": current_user.id})
+    if not balita:
+        raise HTTPException(status_code=404, detail="Balita not found")
+    
+    update_data = {k: v for k, v in data.dict().items() if v is not None}
+    
+    if update_data:
+        # Recalculate usia & status_kms if relevant fields change
+        tanggal_lahir = update_data.get("tanggal_lahir", balita["tanggal_lahir"])
+        berat_badan = update_data.get("berat_badan", balita["berat_badan"])
+        lahir = datetime.strptime(tanggal_lahir, '%Y-%m-%d')
+        sekarang = datetime.now()
+        usia = (sekarang.year - lahir.year) * 12 + (sekarang.month - lahir.month)
+        update_data["usia"] = usia
+        update_data["status_kms"] = _calc_status_kms(berat_badan, usia)
+        
+        await db.data_balita.update_one({"id": balita_id}, {"$set": update_data})
+    
+    updated = await db.data_balita.find_one({"id": balita_id}, {"_id": 0})
+    return updated
+
+@pasien_router.delete("/balita/{balita_id}")
+async def delete_balita(balita_id: str, current_user: UserResponse = Depends(get_current_user)):
+    if current_user.role != "pasien":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    result = await db.data_balita.delete_one({"id": balita_id, "user_id": current_user.id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Balita not found")
+    return {"message": "Balita deleted"}
+
+@pasien_router.post("/balita/{balita_id}/riwayat")
+async def add_pengukuran(balita_id: str, data: PengukuranCreate, current_user: UserResponse = Depends(get_current_user)):
+    if current_user.role != "pasien":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    balita = await db.data_balita.find_one({"id": balita_id, "user_id": current_user.id})
+    if not balita:
+        raise HTTPException(status_code=404, detail="Balita not found")
+    
+    lahir = datetime.strptime(balita["tanggal_lahir"], '%Y-%m-%d')
+    tgl = datetime.strptime(data.tanggal, '%Y-%m-%d')
+    usia_bulan = (tgl.year - lahir.year) * 12 + (tgl.month - lahir.month)
+    if usia_bulan < 0:
+        usia_bulan = 0
+    
+    status_kms = _calc_status_kms(data.berat_badan, usia_bulan)
+    pengukuran = Pengukuran(
+        tanggal=data.tanggal,
+        berat_badan=data.berat_badan,
+        tinggi_badan=data.tinggi_badan,
+        usia_bulan=usia_bulan,
+        status_kms=status_kms
+    )
+    
+    # Append to riwayat and update current values to latest measurement (if latest by date)
+    riwayat = balita.get("riwayat", [])
+    riwayat.append(pengukuran.dict())
+    # sort by tanggal ascending
+    riwayat_sorted = sorted(riwayat, key=lambda x: x["tanggal"])
+    latest = riwayat_sorted[-1]
+    
+    sekarang = datetime.now()
+    usia_now = (sekarang.year - lahir.year) * 12 + (sekarang.month - lahir.month)
+    
+    await db.data_balita.update_one(
+        {"id": balita_id},
+        {"$set": {
+            "riwayat": riwayat_sorted,
+            "berat_badan": latest["berat_badan"],
+            "tinggi_badan": latest["tinggi_badan"],
+            "usia": usia_now,
+            "status_kms": _calc_status_kms(latest["berat_badan"], usia_now)
+        }}
+    )
+    
+    updated = await db.data_balita.find_one({"id": balita_id}, {"_id": 0})
+    return updated
+
+@pasien_router.get("/balita/{balita_id}/riwayat")
+async def get_riwayat(balita_id: str, current_user: UserResponse = Depends(get_current_user)):
+    if current_user.role != "pasien":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    balita = await db.data_balita.find_one({"id": balita_id, "user_id": current_user.id}, {"_id": 0})
+    if not balita:
+        raise HTTPException(status_code=404, detail="Balita not found")
+    return balita.get("riwayat", [])
+
+@pasien_router.delete("/balita/{balita_id}/riwayat/{index}")
+async def delete_pengukuran(balita_id: str, index: int, current_user: UserResponse = Depends(get_current_user)):
+    if current_user.role != "pasien":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    balita = await db.data_balita.find_one({"id": balita_id, "user_id": current_user.id})
+    if not balita:
+        raise HTTPException(status_code=404, detail="Balita not found")
+    riwayat = balita.get("riwayat", [])
+    if index < 0 or index >= len(riwayat):
+        raise HTTPException(status_code=400, detail="Invalid index")
+    riwayat.pop(index)
+    await db.data_balita.update_one({"id": balita_id}, {"$set": {"riwayat": riwayat}})
+    return {"message": "Pengukuran deleted"}
 
 @pasien_router.post("/konsultasi")
 async def request_konsultasi(konsul: KonsultasiCreate, current_user: UserResponse = Depends(get_current_user)):
@@ -456,6 +581,48 @@ async def get_public_resep():
 async def get_public_dokter():
     dokter = await db.users.find({"role": "dokter"}, {"_id": 0}).to_list(100)
     return [UserResponse(**d) for d in dokter]
+
+@api_router.get("/statistik/kelurahan")
+async def get_statistik_kelurahan():
+    """Aggregate balita data per kelurahan (public).
+    Returns list of {kelurahan, total, gizi_baik, gizi_kurang, bgm, rata_bb, rata_tb}."""
+    balita_list = await db.data_balita.find({}, {"_id": 0}).to_list(10000)
+    
+    agg: Dict[str, dict] = {}
+    for b in balita_list:
+        kel = (b.get("kelurahan") or "Tidak Diketahui").strip() or "Tidak Diketahui"
+        if kel not in agg:
+            agg[kel] = {
+                "kelurahan": kel, "total": 0, "gizi_baik": 0,
+                "gizi_kurang": 0, "bgm": 0, "sum_bb": 0.0, "sum_tb": 0.0
+            }
+        a = agg[kel]
+        a["total"] += 1
+        a["sum_bb"] += float(b.get("berat_badan") or 0)
+        a["sum_tb"] += float(b.get("tinggi_badan") or 0)
+        status = (b.get("status_kms") or {}).get("status", "")
+        if status == "Gizi Baik":
+            a["gizi_baik"] += 1
+        elif status == "Gizi Kurang":
+            a["gizi_kurang"] += 1
+        elif status == "BGM":
+            a["bgm"] += 1
+    
+    result = []
+    for kel, a in agg.items():
+        total = a["total"] or 1
+        result.append({
+            "kelurahan": a["kelurahan"],
+            "total": a["total"],
+            "gizi_baik": a["gizi_baik"],
+            "gizi_kurang": a["gizi_kurang"],
+            "bgm": a["bgm"],
+            "rata_bb": round(a["sum_bb"] / total, 2),
+            "rata_tb": round(a["sum_tb"] / total, 2),
+            "persen_gizi_baik": round((a["gizi_baik"] / total) * 100, 1),
+        })
+    result.sort(key=lambda x: x["total"], reverse=True)
+    return result
 
 # Include routers
 api_router.include_router(auth_router)

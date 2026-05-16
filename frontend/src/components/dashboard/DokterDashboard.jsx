@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { dokterAPI } from '../../api';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
-import { MessageSquare, CheckCircle, XCircle } from 'lucide-react';
+import { MessageSquare, CheckCircle, XCircle, BarChart3 } from 'lucide-react';
 import { useToast } from '../../hooks/use-toast';
 import ChatWindow from '../ChatWindow';
+import StatistikKelurahan from '../StatistikKelurahan';
 
 const DokterDashboard = () => {
   const { user } = useAuth();
@@ -14,18 +15,18 @@ const DokterDashboard = () => {
   const [konsultasi, setKonsultasi] = useState([]);
   const [selectedKonsultasi, setSelectedKonsultasi] = useState(null);
 
-  useEffect(() => {
-    loadKonsultasi();
-  }, []);
-
-  const loadKonsultasi = async () => {
+  const loadKonsultasi = useCallback(async () => {
     try {
       const res = await dokterAPI.getKonsultasi();
       setKonsultasi(res.data);
     } catch (error) {
-      console.error('Load konsultasi error:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Load konsultasi error:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadKonsultasi();
+  }, [loadKonsultasi]);
 
   const handleAccept = async (id) => {
     try {
@@ -130,6 +131,14 @@ const DokterDashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+        <div className="mt-8">
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart3 className="text-purple-600" size={22} />
+            <h2 className="text-2xl font-bold">Statistik Gizi Kelurahan</h2>
+          </div>
+          <StatistikKelurahan compact />
+        </div>
       </div>
     </div>
   );

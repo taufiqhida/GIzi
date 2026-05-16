@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { authAPI } from '../api';
 
 const AuthContext = createContext();
@@ -16,40 +16,43 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
 
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setUser(null);
+  }, []);
+
+  const loadUser = useCallback(async () => {
+    try {
+      const response = await authAPI.getMe();
+      setUser(response.data);
+    } catch (error) {
+      logout();
+    } finally {
+      setLoading(false);
+    }
+  }, [logout]);
+
   useEffect(() => {
     if (token) {
       loadUser();
     } else {
       setLoading(false);
     }
-  }, [token]);
-
-  const loadUser = async () => {
-    try {
-      const response = await authAPI.getMe();
-      setUser(response.data);
-    } catch (error) {
-      console.error('Load user error:', error);
-      logout();
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [token, loadUser]);
 
   const login = async (email, password) => {
     try {
       const response = await authAPI.login({ email, password });
       const { access_token, user: userData } = response.data;
-      
       localStorage.setItem('token', access_token);
       setToken(access_token);
       setUser(userData);
-      
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data?.detail || 'Login gagal' 
+      return {
+        success: false,
+        error: error.response?.data?.detail || 'Login gagal'
       };
     }
   };
@@ -58,24 +61,16 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authAPI.register(data);
       const { access_token, user: userData } = response.data;
-      
       localStorage.setItem('token', access_token);
       setToken(access_token);
       setUser(userData);
-      
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data?.detail || 'Register gagal' 
+      return {
+        success: false,
+        error: error.response?.data?.detail || 'Register gagal'
       };
     }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-    setUser(null);
   };
 
   return (

@@ -47,6 +47,11 @@ export const adminAPI = {
 export const pasienAPI = {
   getBalita: () => api.get('/pasien/balita'),
   createBalita: (data) => api.post('/pasien/balita', data),
+  updateBalita: (id, data) => api.put(`/pasien/balita/${id}`, data),
+  deleteBalita: (id) => api.delete(`/pasien/balita/${id}`),
+  addPengukuran: (balitaId, data) => api.post(`/pasien/balita/${balitaId}/riwayat`, data),
+  getRiwayat: (balitaId) => api.get(`/pasien/balita/${balitaId}/riwayat`),
+  deletePengukuran: (balitaId, index) => api.delete(`/pasien/balita/${balitaId}/riwayat/${index}`),
   getKonsultasi: () => api.get('/pasien/konsultasi'),
   requestKonsultasi: (data) => api.post('/pasien/konsultasi', data),
 };
@@ -70,6 +75,7 @@ export const publicAPI = {
   getArtikelBySlug: (slug) => api.get(`/artikel/public/${slug}`),
   getResep: () => api.get('/resep/public'),
   getDokter: () => api.get('/dokter/public'),
+  getStatistikKelurahan: () => api.get('/statistik/kelurahan'),
 };
 
 export default api;

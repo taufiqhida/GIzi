@@ -30,23 +30,22 @@ const ChatWindow = ({ konsultasi, onClose }) => {
       const res = await chatAPI.getMessages(konsultasi.id);
       setMessages(res.data);
     } catch (error) {
-      console.error('Load messages error:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Load messages error:', error);
     }
   }, [konsultasi.id]);
 
-  // Connect WebSocket
+  // Connect WebSocket (only on konsultasi.id change)
   useEffect(() => {
     loadMessages();
 
     const connectWs = () => {
       try {
         const ws = new WebSocket(getWsUrl());
-        
+
         ws.onopen = () => {
-          console.log('WebSocket connected');
           setConnected(true);
         };
-        
+
         ws.onmessage = (event) => {
           const data = JSON.parse(event.data);
           if (data.type === 'new_message') {
@@ -57,23 +56,19 @@ const ChatWindow = ({ konsultasi, onClose }) => {
             });
           }
         };
-        
+
         ws.onclose = () => {
-          console.log('WebSocket disconnected');
           setConnected(false);
           // Reconnect after 3 seconds
           setTimeout(connectWs, 3000);
         };
-        
-        ws.onerror = (error) => {
-          console.error('WebSocket error:', error);
+
+        ws.onerror = () => {
           setConnected(false);
         };
-        
+
         wsRef.current = ws;
       } catch (error) {
-        console.error('WebSocket connection error:', error);
-        // Fallback to polling
         setConnected(false);
       }
     };
@@ -82,7 +77,7 @@ const ChatWindow = ({ konsultasi, onClose }) => {
 
     // Fallback polling if WebSocket fails
     const pollInterval = setInterval(() => {
-      if (!connected) {
+      if (wsRef.current?.readyState !== WebSocket.OPEN) {
         loadMessages();
       }
     }, 5000);
@@ -93,7 +88,7 @@ const ChatWindow = ({ konsultasi, onClose }) => {
       }
       clearInterval(pollInterval);
     };
-  }, [konsultasi.id, getWsUrl, loadMessages, connected]);
+  }, [konsultasi.id, getWsUrl, loadMessages]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -118,7 +113,7 @@ const ChatWindow = ({ konsultasi, onClose }) => {
         loadMessages();
       }
     } catch (error) {
-      console.error('Send message error:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Send message error:', error);
     } finally {
       setSending(false);
     }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Calendar, User, ArrowRight, BookOpen, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
@@ -13,35 +13,34 @@ const Artikel = () => {
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [artikelList, setArtikelList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [imgErrors, setImgErrors] = useState({});
 
   const categories = ['Semua', 'Gizi Anak', 'Tumbuh Kembang', 'Kesehatan', 'Tips & Trik', 'MPASI'];
 
-  useEffect(() => {
-    loadArtikel();
-  }, []);
-
-  const loadArtikel = async () => {
+  const loadArtikel = useCallback(async () => {
     try {
       const res = await publicAPI.getArtikel();
-      // Combine API data with mock data
       const apiData = res.data.map(a => ({
         ...a,
         author: a.author_name || 'Admin',
         date: a.created_at
       }));
-      // If API has data, use it; otherwise fallback to mock
       if (apiData.length > 0) {
         setArtikelList([...apiData, ...mockArtikel]);
       } else {
         setArtikelList(mockArtikel);
       }
     } catch (error) {
-      console.error('Load artikel error:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Load artikel error:', error);
       setArtikelList(mockArtikel);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadArtikel();
+  }, [loadArtikel]);
 
   const filteredArtikel = artikelList.filter(artikel => {
     const matchSearch = artikel.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -185,12 +184,12 @@ const Artikel = () => {
                 <Link key={artikel.id} to={`/artikel/${artikel.slug}`}>
                   <Card className="border-2 hover:border-purple-600 hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer h-full">
                     <div className="h-48 overflow-hidden bg-purple-50">
-                      {artikel.image ? (
+                      {artikel.image && !imgErrors[artikel.id] ? (
                         <img 
                           src={artikel.image} 
                           alt={artikel.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          onError={(e) => { e.target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center"><svg class="text-purple-200" width="48" height="48"><use href="#book-icon"/></svg></div>'; }}
+                          onError={() => setImgErrors(prev => ({ ...prev, [artikel.id]: true }))}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">

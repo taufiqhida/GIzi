@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { adminAPI } from '../../api';
 import { Button } from '../ui/button';
@@ -7,8 +7,9 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Users, FileText, Utensils, Plus, Trash2, X, Edit } from 'lucide-react';
+import { Users, FileText, Utensils, Plus, Trash2, X, Edit, BarChart3 } from 'lucide-react';
 import { useToast } from '../../hooks/use-toast';
+import StatistikKelurahan from '../StatistikKelurahan';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -30,11 +31,7 @@ const AdminDashboard = () => {
     alat: '', bahan: '', cara: '', tips: ''
   });
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const [usersRes, artikelRes, resepRes] = await Promise.all([
         adminAPI.getUsers(),
@@ -45,9 +42,13 @@ const AdminDashboard = () => {
       setArtikel(artikelRes.data);
       setResep(resepRes.data);
     } catch (error) {
-      console.error('Load data error:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Load data error:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
@@ -235,10 +236,11 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs defaultValue="users" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="users"><Users className="mr-2" size={18} />Users</TabsTrigger>
             <TabsTrigger value="artikel"><FileText className="mr-2" size={18} />Artikel</TabsTrigger>
             <TabsTrigger value="resep"><Utensils className="mr-2" size={18} />Resep MPASI</TabsTrigger>
+            <TabsTrigger value="statistik" data-testid="admin-tab-statistik"><BarChart3 className="mr-2" size={18} />Statistik</TabsTrigger>
           </TabsList>
 
           {/* USERS TAB */}
@@ -518,6 +520,11 @@ const AdminDashboard = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="statistik" className="space-y-4">
+            <h2 className="text-2xl font-bold">Statistik Gizi per Kelurahan</h2>
+            <StatistikKelurahan />
           </TabsContent>
         </Tabs>
       </div>

@@ -51,6 +51,26 @@ class Pengukuran(BaseModel):
     usia_bulan: int
     status_kms: dict
 
+class PengukuranCreate(BaseModel):
+    tanggal: str
+    berat_badan: float
+    tinggi_badan: float
+
+class DataBalitaUpdate(BaseModel):
+    nama_balita: Optional[str] = None
+    jenis_kelamin: Optional[str] = None
+    tanggal_lahir: Optional[str] = None
+    nik_balita: Optional[str] = None
+    berat_badan: Optional[float] = None
+    tinggi_badan: Optional[float] = None
+    nama_orang_tua: Optional[str] = None
+    anak_ke: Optional[int] = None
+    berat_badan_lahir: Optional[float] = None
+    panjang_badan_lahir: Optional[float] = None
+    rt: Optional[str] = None
+    rw: Optional[str] = None
+    kelurahan: Optional[str] = None
+
 class DataBalita(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str  # pasien ID
