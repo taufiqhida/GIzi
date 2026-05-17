@@ -75,7 +75,14 @@ const Footer = () => {
               </li>
               <li className="flex items-start space-x-3">
                 <Phone size={18} className="mt-1 text-purple-300" />
-                <span className="text-sm text-purple-200">0856-198-1313</span>
+                <a
+                  href={WA_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-purple-200 hover:text-white transition-colors"
+                >
+                  {WA_NUMBER}
+                </a>
               </li>
               <li className="flex items-start space-x-3">
                 <Mail size={18} className="mt-1 text-purple-300" />
