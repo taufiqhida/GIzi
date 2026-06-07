@@ -21,7 +21,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
     nama: str
-    role: str
+    role: str = "pasien"  # default & enforced on public register endpoint
     nohp: Optional[str] = None
     spesialisasi: Optional[str] = None
     pengalaman: Optional[str] = None

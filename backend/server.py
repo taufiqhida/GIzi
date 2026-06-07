@@ -1,19 +1,22 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, Header, WebSocket, WebSocketDisconnect
-from fastapi.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
 from pathlib import Path
 import os
+
+# Load .env BEFORE importing auth (auth.py reads SECRET_KEY at import time)
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
+
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Header, Request, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from motor.motor_asyncio import AsyncIOMotorClient
 import logging
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional, List, Dict
 
 from models import *
-from auth import get_password_hash, verify_password, create_access_token, decode_token
-
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
+from auth import get_password_hash, verify_password, create_access_token, decode_token, validate_password_strength
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -76,27 +79,72 @@ async def get_current_user(authorization: Optional[str] = Header(None)):
     return UserResponse(**user)
 
 # Auth Routes
+MAX_LOGIN_ATTEMPTS = 5
+LOCKOUT_MINUTES = 15
+
+def _client_ip(request: Request) -> str:
+    fwd = request.headers.get("x-forwarded-for")
+    if fwd:
+        return fwd.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+async def _check_lockout(ip_email: str, email: str):
+    """Raise 429 if too many failed attempts in the lockout window.
+    Checks both IP+email and email-only to handle rotating-IP attacks."""
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=LOCKOUT_MINUTES)
+    # Per-IP lockout
+    by_ip = await db.login_attempts.count_documents({
+        "identifier": ip_email,
+        "ts": {"$gte": cutoff},
+        "success": False,
+    })
+    # Per-email lockout (catches distributed attacks)
+    by_email = await db.login_attempts.count_documents({
+        "email": email,
+        "ts": {"$gte": cutoff},
+        "success": False,
+    })
+    if by_ip >= MAX_LOGIN_ATTEMPTS or by_email >= MAX_LOGIN_ATTEMPTS * 3:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Terlalu banyak percobaan login gagal. Coba lagi dalam {LOCKOUT_MINUTES} menit."
+        )
+
+async def _record_attempt(ip_email: str, email: str, success: bool):
+    await db.login_attempts.insert_one({
+        "identifier": ip_email,
+        "email": email,
+        "ts": datetime.now(timezone.utc),
+        "success": success,
+    })
+
 @auth_router.post("/register")
 async def register(user_data: UserCreate):
+    """Public register — HANYA bisa daftar sebagai 'pasien'.
+    Admin/dokter harus dibuat oleh admin via /api/admin/users."""
+    # Validate password strength
+    err = validate_password_strength(user_data.password)
+    if err:
+        raise HTTPException(status_code=400, detail=err)
+
     # Check if email exists
     existing = await db.users.find_one({"email": user_data.email})
     if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    # Hash password
+        raise HTTPException(status_code=400, detail="Email sudah terdaftar")
+
+    # Force role = pasien (security: prevent privilege escalation)
     hashed_password = get_password_hash(user_data.password)
-    
-    # Create user
+    user_dict = user_data.dict(exclude={'password', 'role'})
     user = User(
-        **user_data.dict(exclude={'password'}),
+        **user_dict,
+        role="pasien",
         password=hashed_password
     )
-    
+
     await db.users.insert_one(user.dict())
-    
-    # Create token
+
     access_token = create_access_token(data={"sub": user.id, "role": user.role})
-    
+
     return {
         "access_token": access_token,
         "token_type": "bearer",
@@ -104,14 +152,28 @@ async def register(user_data: UserCreate):
     }
 
 @auth_router.post("/login")
-async def login(credentials: UserLogin):
-    user = await db.users.find_one({"email": credentials.email})
-    
+async def login(credentials: UserLogin, request: Request):
+    email = credentials.email.lower().strip()
+    ip = _client_ip(request)
+    identifier = f"{ip}:{email}"
+
+    await _check_lockout(identifier, email)
+
+    user = await db.users.find_one({"email": email})
+
     if not user or not verify_password(credentials.password, user['password']):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    
+        await _record_attempt(identifier, email, success=False)
+        raise HTTPException(status_code=401, detail="Email atau password salah")
+
+    await _record_attempt(identifier, email, success=True)
+    # Clear failed attempts on successful login
+    await db.login_attempts.delete_many({
+        "email": email,
+        "success": False,
+    })
+
     access_token = create_access_token(data={"sub": user['id'], "role": user['role']})
-    
+
     return {
         "access_token": access_token,
         "token_type": "bearer",
@@ -121,6 +183,26 @@ async def login(credentials: UserLogin):
 @auth_router.get("/me")
 async def get_me(current_user: UserResponse = Depends(get_current_user)):
     return current_user
+
+class PasswordChange(BaseModel):
+    old_password: str
+    new_password: str
+
+@auth_router.post("/change-password")
+async def change_password(data: PasswordChange, current_user: UserResponse = Depends(get_current_user)):
+    err = validate_password_strength(data.new_password)
+    if err:
+        raise HTTPException(status_code=400, detail=err)
+
+    user = await db.users.find_one({"id": current_user.id})
+    if not user or not verify_password(data.old_password, user['password']):
+        raise HTTPException(status_code=400, detail="Password lama salah")
+
+    await db.users.update_one(
+        {"id": current_user.id},
+        {"$set": {"password": get_password_hash(data.new_password)}}
+    )
+    return {"message": "Password berhasil diubah"}
 
 # Admin Routes
 @admin_router.get("/users")
@@ -646,13 +728,31 @@ api_router.include_router(pasien_router)
 
 app.include_router(api_router)
 
+# CORS: production should restrict origins via CORS_ORIGINS env (comma-separated)
+_cors_origins_raw = os.environ.get('CORS_ORIGINS', '*')
+_cors_origins = ['*'] if _cors_origins_raw == '*' else [o.strip() for o in _cors_origins_raw.split(',') if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],
+    allow_origins=_cors_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Security headers middleware
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+        # HSTS - only effective on HTTPS; safe to send on HTTP too
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        return response
+
+app.add_middleware(SecurityHeadersMiddleware)
 
 # Configure logging
 logging.basicConfig(
@@ -660,6 +760,19 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+@app.on_event("startup")
+async def startup_indexes():
+    """Create MongoDB indexes for security & performance."""
+    try:
+        await db.users.create_index("email", unique=True)
+        # TTL: login attempts auto-deleted after 24 hours
+        await db.login_attempts.create_index("ts", expireAfterSeconds=86400)
+        await db.login_attempts.create_index("identifier")
+        await db.login_attempts.create_index("email")
+        logger.info("MongoDB indexes ready")
+    except Exception as e:
+        logger.warning(f"Index setup warning: {e}")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

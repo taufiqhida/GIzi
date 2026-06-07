@@ -12,6 +12,13 @@
 - Email: pasien@sobatgizi.com
 - Password: pasien123
 
-Existing balita owned by pasien@sobatgizi.com:
-- Andi Saputra (laki, Sukamaju, Gizi Baik)
-- Putri Ayu (perempuan, Sukamaju, Gizi Kurang)
+## Custom Admin (created via seed_admin.py)
+- Email: admin@puskesmasbugangan.my.id
+- Password: BugaganGizi2026
+
+## Security Notes
+- Public /api/auth/register only allows role=pasien (forced)
+- Admin/dokter creation requires existing admin via /api/admin/users
+- Brute force lockout: 5 fails/IP or 15 fails/email per 15 min
+- Password policy: min 8 chars, mix of letters+digits
+- Change password: POST /api/auth/change-password (requires auth)
